@@ -31,7 +31,7 @@ ESPAUTO is an open-source RC car project built on Bluetooth Low Energy (BLE). By
 ### 2. Deployment
 **Firmware Flashing (Arduino IDE):**
 - **Car (ESP32-S3):** Open the `/Arduino/Car` project in Arduino IDE, configure the board and port, then compile and upload.
-- **Remote (Arduino Nesso N1/ESP32-C6):** Open the `/Arduino/Remote` project in Arduino IDE, configure the board and port, then compile and upload.
+- **Remote (Arduino Nesso N1):** Open the `/Arduino/Remote` project in Arduino IDE, configure the board and port, then compile and upload.
 
 **Running Clients:**
 - **Android:** Open the `/Android/ESPAUTO` project in Android Studio to compile and install.
