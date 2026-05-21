@@ -35,7 +35,9 @@ ESPAUTO is an open-source RC car project built on Bluetooth Low Energy (BLE). By
 
 **Running Clients:**
 - **Android:** Open the `/Android/ESPAUTO` project in Android Studio to compile and install.
-- **Web:** Open `/Web/index.html` directly in your browser.
+- **Web:**
+  - **Online Access:** Click [Access Web Client](https://honoz.github.io/ESPAUTO/Web/index.html) to start using it directly.
+  - **Local Run:** You can also open `/Web/index.html` directly in your browser.
 
 **Connection:**
 - Simply pair the devices via Bluetooth to start controlling.
