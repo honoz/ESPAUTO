@@ -35,7 +35,9 @@ ESPAUTO 是一个基于低功耗蓝牙（BLE）的开源遥控小车项目。通
 
 **客户端运行:**
 - **Android:** 使用 Android Studio 打开 `/Android/ESPAUTO` 工程进行编译及安装。
-- **Web:** 直接在浏览器中打开 `/Web/index.html` 即可使用。
+- **Web:**
+  - **在线访问:** 点击 [访问 Web 在线客户端](https://honoz.github.io/ESPAUTO/Web/index.html) 即可直接连接使用。
+  - **本地运行:** 在本地直接打开 `/Web/index.html` 即可使用。
 
 **连接说明:**
 - 设备间通过蓝牙建立配对连接即可使用。
