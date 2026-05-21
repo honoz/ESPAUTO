@@ -31,7 +31,7 @@ ESPAUTO 是一个基于低功耗蓝牙（BLE）的开源遥控小车项目。通
 ### 2. 部署步骤
 **固件烧录 (Arduino IDE):**
 - **Car (ESP32-S3):** 使用 Arduino IDE 打开 `/Arduino/Car` 工程，配置好板型与端口，完成编译上传。
-- **Remote (Arduino Nesso N1/ESP32-C6):** 使用 Arduino IDE 打开 `/Arduino/Remote` 工程，配置好板型与端口，完成编译上传。
+- **Remote (Arduino Nesso N1):** 使用 Arduino IDE 打开 `/Arduino/Remote` 工程，配置好板型与端口，完成编译上传。
 
 **客户端运行:**
 - **Android:** 使用 Android Studio 打开 `/Android/ESPAUTO` 工程进行编译及安装。
