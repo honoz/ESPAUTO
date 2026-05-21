@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">ESPAUTO</string>
+    <string name="toast_gyro_on">Gravity control enabled</string>
+    <string name="toast_gyro_off">Touchpad control restored</string>
+    <string name="toast_no_device_scanned">No devices found</string>
+    <string name="toast_no_live_frame">No real-time frame available, cannot record</string>
+    <string name="toast_video_recorded">Video saved to gallery</string>
+    <string name="toast_video_started">Video recording started</string>
+    <string name="toast_screenshot_success">Screenshot saved to gallery</string>
+    <string name="toast_screenshot_failed">Failed to save screenshot</string>
+    <string name="toast_no_gyro_sensor">Device does not support gravity sensor</string>
+    <string name="toast_bluetooth_permission_denied">Bluetooth permission is required to scan and connect to the car. Please enable it in Settings.</string>
+    <string name="toast_bluetooth_turned_off">Bluetooth turned off, connection disconnected</string>
+    <string name="tip_connecting_device">Connecting to device…</string>
+    <string name="tip_connecting_target_device">Connecting to %1$s…</string>
+    <string name="tip_no_video_stream">No video stream received, please restart the car</string>
+    <string name="tip_waiting_connection">Waiting to connect to the car</string>
+    <string name="tip_reconnecting">Connection lost, reconnecting…</string>
+    <string name="tip_reconnect_failed">Reconnection failed, please connect manually</string>
+    <string name="tip_scanning_device">Scanning for devices…</string>
+    <string name="tip_bluetooth_off">Bluetooth is turned off, please enable Bluetooth</string>
+    <string name="status_live">Live</string>
+    <string name="status_record">Record %1$s</string>
+    <string name="device_unknown">Unknown Device</string>
+    <string name="ble_tip_connect_success">Connected successfully, waiting for video stream</string>
+    <string name="ble_tip_disconnected">Disconnected</string>
+    <string name="label_servo">Gimbal</string>
+    <string name="label_led_control">LED Control</string>
+    <string name="label_slide_control">Slide Control</string>
+    <string name="device_name_placeholder">Device Name</string>
+    <string name="device_mac_placeholder">MAC Address</string>
+</resources>
