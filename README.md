@@ -5,11 +5,11 @@
 基于 ESP32 的 BLE 实时图传遥控小车项目
 
 ## 预览展示
-| Android 客户端 | Web 电脑端 |
+| Android | Arduino NESSO N1 |
 | :---: | :---: |
-| ![Android 客户端](Assets/android_screenshot.png) | ![Arduino NESSO N1](Assets/nesso_n1.png) |
-| **Arduino NESSO N1** | **Web 手机端** |
-| ![Web 电脑端](Assets/web_pc.png) | ![Web 手机端](Assets/web_mobile.png) |
+| ![Android](Assets/android_screenshot.png) | ![Arduino NESSO N1](Assets/nesso_n1.png) |
+| **Web PC** | **Web Mobile** |
+| ![Web PC](Assets/web_pc.png) | ![Web Mobile](Assets/web_mobile.png) |
 
 ## 简介
 ESPAUTO 是一个基于低功耗蓝牙（BLE）的开源遥控小车项目。通过对 BLE 通信链路的优化，实现了实时的视频流传输与指令控制。项目包含 Android 端、Arduino 端及 Web 端三种控制方式，适合作为学习 BLE 图像传输与 ESP32 开发的参考。
