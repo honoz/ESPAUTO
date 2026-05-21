@@ -1,0 +1,1188 @@
+<!--
+  ESPAUTO
+  Copyright (c) 2026 honoz
+  Licensed under the MIT License.
+-->
+  
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ESPAUTO 控制台</title>
+    <style>
+        :root {
+            --bg-base: #08090C;
+            --bg-surface: rgba(22, 24, 30, 0.7);
+            --bg-surface-solid: #16181E;
+            --bg-card-active: rgba(255, 255, 255, 0.04);
+            
+            --brand-primary: #0088FF;
+            --brand-glow: rgba(0, 136, 255, 0.4);
+            --status-success: #30D158;
+            --status-danger: #FF453A;
+            --status-danger-glow: rgba(255, 69, 58, 0.25);
+            
+            --text-title: #FFFFFF;
+            --text-body: #E4E4E7;
+            --text-caption: #71717A;
+            --border-light: rgba(255, 255, 255, 0.06);
+            --radius-main: 20px;
+            --radius-sub: 14px;
+            --transition-smooth: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "PingFang SC", sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-body);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            overscroll-behavior-y: contain; 
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        header {
+            background: rgba(8, 9, 12, 0.7);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-bottom: 1px solid var(--border-light);
+            padding: 14px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-title {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            color: var(--text-title);
+        }
+
+        .logo-badge {
+            background: var(--border-light);
+            color: var(--brand-primary);
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 100px;
+            font-weight: 500;
+            border: 1px solid rgba(0, 136, 255, 0.2);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        #headerClock {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            color: var(--text-caption);
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
+        .btn-lang {
+            background: var(--bg-card-active);
+            border: 1px solid var(--border-light);
+            color: var(--text-body);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .main-wrapper {
+            max-width: 1440px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 24px;
+            box-sizing: border-box;
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 24px;
+        }
+
+        .panel {
+            background: var(--bg-surface);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-main);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+        }
+
+        .video-box {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            background-color: #020204;
+            border-radius: var(--radius-sub);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        #videoDisplayCanvas {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .no-video {
+            color: var(--text-caption);
+            font-size: 13px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            text-align: center;
+            padding: 0 10px;
+        }
+
+        .no-video-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.03);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.3);
+            border: 1px solid var(--border-light);
+        }
+
+        .rec-indicator {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(10px);
+            padding: 6px 12px;
+            border-radius: 100px;
+            font-size: 11px;
+            color: var(--text-title);
+            display: none;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .rec-dot {
+            width: 7px;
+            height: 7px;
+            background-color: var(--status-danger);
+            border-radius: 50%;
+            animation: rec-pulse 1.2s infinite;
+        }
+
+        @keyframes rec-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .btn-group {
+            margin-top: 24px;
+            display: flex;
+            gap: 14px;
+            width: 100%;
+        }
+
+        .btn {
+            font-family: inherit;
+            background: var(--bg-card-active);
+            color: var(--text-title);
+            border: 1px solid var(--border-light);
+            padding: 0 12px;
+            height: 52px;
+            box-sizing: border-box;
+            border-radius: var(--radius-sub);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: var(--transition-smooth);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.08); }
+        .btn:active:not(:disabled) { transform: scale(0.97); }
+
+        .btn-primary {
+            background: var(--brand-primary);
+            border-color: transparent;
+            box-shadow: 0 4px 24px var(--brand-glow);
+        }
+
+        .btn-disconnect {
+            background: rgba(255, 69, 58, 0.1);
+            color: var(--status-danger);
+            border-color: rgba(255, 69, 58, 0.15);
+        }
+
+        .btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .panel-control-inner {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .dashboard-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-title);
+            margin: 0 0 16px 0;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .status-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sub);
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+
+        .status-label { 
+            font-size: 11px; 
+            color: var(--text-caption); 
+            white-space: nowrap; 
+        }
+        .status-value { 
+            font-size: 18px; 
+            font-weight: 600; 
+            color: var(--text-title); 
+            white-space: nowrap; 
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .slider-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sub);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-body);
+            margin-bottom: 12px;
+        }
+
+        .slider-container {
+            position: relative;
+            width: 100%;
+            height: 36px;
+            border-radius: 100px;
+            background: rgba(255, 255, 255, 0.04);
+            overflow: hidden;
+        }
+
+        input[type=range].modern-slider {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            margin: 0; opacity: 0;
+            cursor: ew-resize;
+            z-index: 5;
+        }
+
+        .slider-track-fill {
+            position: absolute;
+            top: 0; left: 0;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, rgba(0,136,255,0.4), var(--brand-primary));
+            pointer-events: none;
+        }
+
+        .mobile-joystick-zone {
+            display: none; 
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px dashed var(--border-light);
+            border-radius: var(--radius-main);
+            padding: 20px;
+            margin-top: 20px;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .joystick-container {
+            width: 140px;
+            height: 140px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid var(--border-light);
+            border-radius: 50%;
+            position: relative;
+            touch-action: none;
+        }
+
+        .joystick-thumb {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #2496FF, var(--brand-primary));
+            box-shadow: 0 4px 14px var(--brand-glow);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .mobile-action-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
+        }
+        .mobile-action-grid .btn {
+            height: 48px;
+            font-size: 12px;
+            padding: 0 4px;
+        }
+
+        /* 🛠️ 优化控制提示卡片的高度和间距，填补下方空旷感 */
+        .guide-card {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sub);
+            padding: 20px 24px;
+            font-size: 13px;
+            color: var(--text-caption);
+            line-height: 1.8;
+            min-height: 165px; /* 强制设置最小高度 */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* 让内容、列表和提示底部两端对齐分流 */
+            box-sizing: border-box;
+        }
+
+        .guide-card h4 { 
+            margin: 0 0 12px 0; 
+            color: var(--text-title); 
+            font-size: 14px;
+        }
+        .guide-list { 
+            margin: 0 0 12px 0; 
+            padding-left: 16px; 
+            display: flex;
+            flex-direction: column;
+            gap: 8px; /* 增加列表行与行之间的间距 */
+        }
+        .tip-highlight { 
+            color: #FF9F0A; 
+            display: block; 
+            font-style: normal; 
+            font-size: 12px;
+            border-top: 1px solid rgba(255,255,255,0.04);
+            padding-top: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-wrapper { grid-template-columns: 1fr; padding: 14px; gap: 16px; }
+            .panel { padding: 18px; }
+            .guide-card.pc-only { display: none; }
+            
+            .btn-group #btnConnect {
+                flex: 1 !important;
+            }
+            .btn-group #btnDisconnect {
+                flex: 1 !important;
+            }
+            .btn {
+                font-size: 13px;
+            }
+            .status-value {
+                font-size: 16px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .btn {
+                font-size: 11px;
+                padding: 0 4px;
+            }
+            .status-value {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <span class="logo-title">ESPAUTO</span>
+            <span class="logo-badge">PRO v1.0</span>
+        </div>
+        <div class="header-right">
+            <div id="headerClock" data-i18n="statusStandby">DEVICE STANDBY</div>
+            <button id="btnLangToggle" class="btn-lang">EN</button>
+        </div>
+    </header>
+    
+    <div class="main-wrapper">
+        <div class="panel">
+            <div class="video-box">
+                <div id="recIndicator" class="rec-indicator">
+                    <div class="rec-dot"></div>
+                    <span>REC <span id="recTimer">00:00</span></span>
+                </div>
+                <canvas id="videoDisplayCanvas"></canvas>
+                <div id="noVideoTip" class="no-video">
+                    <div class="no-video-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                    </div>
+                    <span data-i18n="videoTip">等待低延时无线图传链路建立...</span>
+                </div>
+            </div>
+            
+            <div id="mobileJoystickZone" class="mobile-joystick-zone">
+                <div id="joystickContainer" class="joystick-container">
+                    <div id="joystickThumb" class="joystick-thumb"></div>
+                </div>
+                <div class="mobile-action-grid">
+                    <button id="mBtnServoUp" class="btn mob-action-btn" data-i18n="btnTiltUp" disabled>云台 抬起</button>
+                    <button id="mBtnBeep" class="btn mob-action-btn" data-i18n="btnBeep" disabled>鸣笛</button>
+                    <button id="mBtnServoDown" class="btn mob-action-btn" data-i18n="btnTiltDown" disabled>云台 降下</button>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button id="btnConnect" class="btn btn-primary" style="flex: 1.4;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
+                    <span data-i18n="btnConnect">开启连接链路</span>
+                </button>
+                <button id="btnDisconnect" class="btn btn-disconnect" style="flex: 0.6;" disabled data-i18n="btnDisconnect">断开</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-control-inner">
+                <h3 class="dashboard-title" data-i18n="dashTitle">系统状态与控制</h3>
+                
+                <div class="status-grid">
+                    <div class="status-card">
+                        <span class="status-label" data-i18n="lblLink">工作链路</span>
+                        <span id="txtState" class="status-value" style="color: var(--status-danger); font-size: 14px;">OFFLINE</span>
+                    </div>
+                    <div class="status-card">
+                        <span class="status-label" data-i18n="lblFps">实时帧率</span>
+                        <span id="txtFps" class="status-value" style="color: var(--brand-primary);">-- FPS</span>
+                    </div>
+                    <div class="status-card">
+                        <span class="status-label" data-i18n="lblTemp">终端温度</span>
+                        <span id="txtTemp" class="status-value">-- ℃</span>
+                    </div>
+                    <div class="status-card">
+                        <span class="status-label" data-i18n="lblBright">照明功率</span>
+                        <span id="txtBright" class="status-value">-- %</span>
+                    </div>
+                </div>
+
+                <div class="slider-section">
+                    <div class="slider-header">
+                        <span data-i18n="sliderLed">矩阵 LED 负载亮度</span>
+                        <span id="sliderValDisplay">0%</span>
+                    </div>
+                    <div class="slider-container">
+                        <div id="sliderTrackFill" class="slider-track-fill"></div>
+                        <input type="range" id="sliderLed" class="modern-slider" min="0" max="100" value="0" disabled>
+                    </div>
+                </div>
+
+                <div class="btn-group" style="margin-top: 0; margin-bottom: 24px;">
+                    <button id="btnBeep" class="btn pc-action-btn" disabled data-i18n="btnBeep">鸣笛</button>
+                    <button id="btnScreenshot" class="btn" disabled data-i18n="btnSnap">快照</button>
+                    <button id="btnRecord" class="btn" disabled style="flex: 1.2;">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" id="iconRecord" style="color: var(--status-danger);"><circle cx="12" cy="12" r="10"/></svg>
+                        <span id="lblRecord" style="margin-left: 2px;" data-i18n="btnRecord">录制</span>
+                    </button>
+                </div>
+
+                <div class="guide-card pc-only" id="pcGuideCard">
+                    <h4 data-i18n="guideTitle">操控集群说明:</h4>
+                    <ul class="guide-list">
+                        <li id="g_move"><b>车身移动</b>：W (前) / S (后) / A (左旋) / D (右旋)</li>
+                        <li id="g_servo"><b>精密云台</b>：I (抬起) / K (降下)</li>
+                        <li id="g_beep"><b>应答模块</b>：Space (短促鸣笛)</li>
+                    </ul>
+                    <i class="tip-highlight">
+                        <span data-i18n="guideTip">提示：遥控前请点击网页任意空白处激活焦点。</span>
+                    </i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="recordCanvas" style="display: none;"></canvas>
+
+    <script>
+        // --- 国际化数据字典 ---
+        const i18nTokens = {
+            'zh-CN': {
+                statusStandby: "设备就绪 STANDBY",
+                statusSearching: "正在搜索",
+                statusLinking: "正在配对",
+                statusActive: "系统就绪 ACTIVE",
+                statusError: "链路异常",
+                videoTip: "等待低延时无线图传链路建立...",
+                btnConnect: "开启连接链路",
+                btnDisconnect: "断开",
+                dashTitle: "系统状态与控制",
+                lblLink: "工作链路",
+                lblFps: "实时帧率",
+                lblTemp: "终端温度",
+                lblBright: "照明功率",
+                sliderLed: "矩阵 LED 负载亮度",
+                btnBeep: "鸣笛",
+                btnSnap: "快照",
+                btnRecord: "录制",
+                btnRecordStop: "停止",
+                btnTiltUp: "云台 抬起",
+                btnTiltDown: "云台 降下",
+                guideTitle: "操控集群说明:", // 🛠️ 这里已成功修正为中文翻译
+                g_move: "<b>车身移动</b>：W (前) / S (后) / A (左旋) / D (右旋)",
+                g_servo: "<b>精密云台</b>：I (抬起) / K (降下)",
+                g_beep: "<b>应答模块</b>：Space (短促鸣笛)",
+                guideTip: "提示：遥控前请点击网页任意空白处激活焦点。"
+            },
+            'en': {
+                statusStandby: "DEVICE STANDBY",
+                statusSearching: "SEARCHING",
+                statusLinking: "LINKING",
+                statusActive: "SYSTEM ACTIVE",
+                statusError: "LINK ERROR",
+                videoTip: "Awaiting low-latency wireless video link...",
+                btnConnect: "Establish Link",
+                btnDisconnect: "Disconnect",
+                dashTitle: "System Status & Control",
+                lblLink: "Data Link",
+                lblFps: "Real-time FPS",
+                lblTemp: "Core Temp",
+                lblBright: "LED Power",
+                sliderLed: "Matrix LED Intensity",
+                btnBeep: "Horn",
+                btnSnap: "Snapshot",
+                btnRecord: "Record",
+                btnRecordStop: "Stop",
+                btnTiltUp: "Tilt Up",
+                btnTiltDown: "Tilt Down",
+                guideTitle: "Control Manual:",
+                g_move: "<b>Chassis</b>: W (Fwd) / S (Bwd) / A (Left) / D (Right)",
+                g_servo: "<b>Gimbal</b>: I (Tilt Up) / K (Tilt Down)",
+                g_beep: "<b>Response</b>: Space (Honk Horn)",
+                guideTip: "Tip: Click anywhere blank to focus keyboard control."
+            }
+        };
+
+        let currentLang = navigator.language.startsWith('zh') ? 'zh-CN' : 'en';
+
+        function applyLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('btnLangToggle').innerText = lang === 'zh-CN' ? 'EN' : '中文';
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const token = el.getAttribute('data-i18n');
+                if (i18nTokens[lang][token]) el.innerText = i18nTokens[lang][token];
+            });
+
+            document.getElementById('g_move').innerHTML = i18nTokens[lang]['g_move'];
+            document.getElementById('g_servo').innerHTML = i18nTokens[lang]['g_servo'];
+            document.getElementById('g_beep').innerHTML = i18nTokens[lang]['g_beep'];
+
+            updateStateTextUI();
+        }
+
+        const BLE_SERVICE_UUID = "0000ffe0-0000-1000-8000-00805f9b34fb";
+        const CONTROL_CHAR_UUID = "0000ffe2-0000-1000-8000-00805f9b34fb";
+        const VIDEO_CHAR_UUID = "0000ffe1-0000-1000-8000-00805f9b34fb";
+        const STATUS_CHAR_UUID = "0000ffe3-0000-1000-8000-00805f9b34fb";
+
+        const CMD_LED_BRIGHTNESS = 0x00;
+        const CMD_BEEP = 0x12;
+        const CMD_SERVO_UP = 0x13;
+        const CMD_SERVO_DOWN = 0x14;
+        const CMD_CAR_MOVE = 0x15;
+
+        let bleDevice = null, gattServer = null, controlCharacteristic = null;
+        let bleCmdQueue = [], isSendingCmd = false;
+        const CMD_SEND_INTERVAL_MS = 15;
+
+        let isFirstStatusReceived = false;
+        let frameChunks = [];
+        let videoBufferReceivedLen = 0, expectFrameTotalLen = 0;
+        let frameCountFps = 0, lastFpsRefreshTime = Date.now();
+        let latestImageBitmap = null;
+
+        let keyStates = { w: false, s: false, a: false, d: false };
+        let driveLoopIntervalId = null, servoIntervalId = null, statusPollIntervalId = null;
+        let lastSentSpeed = 0, lastSentSteer = 0;
+
+        let mediaRecorder = null, recordedChunks = [], isRecording = false;
+        let recordCanvasId = null, recordStartTime = 0, recordTimerInterval = null;
+
+        const btnConnect = document.getElementById('btnConnect');
+        const btnDisconnect = document.getElementById('btnDisconnect');
+        const videoDisplayCanvas = document.getElementById('videoDisplayCanvas');
+        const canvasDisplayCtx = videoDisplayCanvas.getContext('2d');
+        const noVideoTip = document.getElementById('noVideoTip');
+        const txtState = document.getElementById('txtState');
+        const txtFps = document.getElementById('txtFps');
+        const txtTemp = document.getElementById('txtTemp');
+        const txtBright = document.getElementById('txtBright');
+        const sliderLed = document.getElementById('sliderLed');
+        const sliderTrackFill = document.getElementById('sliderTrackFill');
+        const sliderValDisplay = document.getElementById('sliderValDisplay');
+        const btnBeep = document.getElementById('btnBeep');
+        const btnScreenshot = document.getElementById('btnScreenshot');
+        const btnRecord = document.getElementById('btnRecord');
+        const lblRecord = document.getElementById('lblRecord');
+        const recIndicator = document.getElementById('recIndicator');
+        const recTimer = document.getElementById('recTimer');
+        const recordCanvas = document.getElementById('recordCanvas');
+        const canvasCtx = recordCanvas.getContext('2d');
+
+        const mobileJoystickZone = document.getElementById('mobileJoystickZone');
+        const joystickContainer = document.getElementById('joystickContainer');
+        const joystickThumb = document.getElementById('joystickThumb');
+        const mBtnServoUp = document.getElementById('mBtnServoUp');
+        const mBtnServoDown = document.getElementById('mBtnServoDown');
+        const mBtnBeep = document.getElementById('mBtnBeep');
+        const pcGuideCard = document.getElementById('pcGuideCard');
+
+        let isMobileMode = false;
+
+        function checkAndSwitchEnvironment() {
+            const isSmallScreen = window.innerWidth <= 1024;
+            const hasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+            const isTouchMediaQuery = window.matchMedia("(pointer: coarse)").matches;
+            const targetIsMobile = isSmallScreen || hasTouch || isTouchMediaQuery;
+
+            if (targetIsMobile !== isMobileMode) {
+                isMobileMode = targetIsMobile;
+                if (isMobileMode) {
+                    mobileJoystickZone.style.display = 'flex';
+                    btnBeep.style.display = 'none';
+                    pcGuideCard.style.display = 'none';
+                    stopDriveLoop();
+                } else {
+                    mobileJoystickZone.style.display = 'none';
+                    btnBeep.style.display = 'inline-flex';
+                    pcGuideCard.style.display = 'flex'; /* 配合全新的 flex 布局支撑 */
+                    if (bleDevice && bleDevice.gatt.connected) startDriveLoop();
+                }
+            }
+        }
+
+        window.addEventListener('resize', checkAndSwitchEnvironment);
+        window.addEventListener('orientationchange', checkAndSwitchEnvironment);
+        checkAndSwitchEnvironment();
+        window.addEventListener('touchstart', () => { if(!isMobileMode) checkAndSwitchEnvironment(); }, {once: true});
+
+        const preventControlFocus = (e) => {
+            setTimeout(() => { if(document.activeElement) document.activeElement.blur(); }, 5);
+        };
+
+        function updateSliderUI(value) {
+            sliderTrackFill.style.width = value + '%';
+        }
+
+        function updateStateTextUI() {
+            if(!bleDevice || !bleDevice.gatt.connected) {
+                if(txtState.innerText !== "SEARCHING" && txtState.innerText !== "LINKING" && txtState.innerText !== "ERROR" && txtState.innerText !== "正在搜索" && txtState.innerText !== "正在配对" && txtState.innerText !== "链路异常") {
+                    txtState.innerText = "OFFLINE";
+                    txtState.style.color = "var(--status-danger)";
+                }
+            } else {
+                txtState.innerText = "ONLINE";
+                txtState.style.color = "var(--status-success)";
+            }
+        }
+
+        document.getElementById('btnLangToggle').addEventListener('click', () => {
+            applyLanguage(currentLang === 'zh-CN' ? 'en' : 'zh-CN');
+        });
+
+        btnConnect.addEventListener('click', (e) => { connectBle(); preventControlFocus(e); });
+        btnDisconnect.addEventListener('click', (e) => { disconnectBle(); preventControlFocus(e); });
+        btnBeep.addEventListener('click', (e) => { sendSimpleControlCmd(CMD_BEEP); preventControlFocus(e); });
+        btnScreenshot.addEventListener('click', (e) => { saveScreenshot(); preventControlFocus(e); });
+        btnRecord.addEventListener('click', (e) => { toggleVideoRecording(); preventControlFocus(e); });
+        
+        sliderLed.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            txtBright.innerText = val + "%"; 
+            sliderValDisplay.innerText = val + "%";
+            updateSliderUI(val);
+            sendLedBrightCmd(val);
+        });
+
+        mBtnBeep.addEventListener('touchstart', (e) => { e.preventDefault(); sendSimpleControlCmd(CMD_BEEP); });
+        
+        mBtnServoUp.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            sendSimpleControlCmd(CMD_SERVO_UP);
+            if(servoIntervalId) clearInterval(servoIntervalId);
+            servoIntervalId = setInterval(() => sendSimpleControlCmd(CMD_SERVO_UP), 100);
+        });
+        mBtnServoUp.addEventListener('touchend', (e) => { e.preventDefault(); clearInterval(servoIntervalId); servoIntervalId = null; });
+
+        mBtnServoDown.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            sendSimpleControlCmd(CMD_SERVO_DOWN);
+            if(servoIntervalId) clearInterval(servoIntervalId);
+            servoIntervalId = setInterval(() => sendSimpleControlCmd(CMD_SERVO_DOWN), 100);
+        });
+        mBtnServoDown.addEventListener('touchend', (e) => { e.preventDefault(); clearInterval(servoIntervalId); servoIntervalId = null; });
+
+        setInterval(processNextCmd, CMD_SEND_INTERVAL_MS);
+
+        let joyActive = false;
+        let joyCenterX = 0, joyCenterY = 0;
+        const maxJoyR = 45; 
+
+        joystickContainer.addEventListener('touchstart', (e) => {
+            if (!controlCharacteristic) return;
+            joyActive = true;
+            const rect = joystickContainer.getBoundingClientRect();
+            joyCenterX = rect.left + rect.width / 2;
+            joyCenterY = rect.top + rect.height / 2;
+            handleJoystickMove(e.touches[0].clientX, e.touches[0].clientY);
+        });
+
+        window.addEventListener('touchmove', (e) => {
+            if (!joyActive) return;
+            handleJoystickMove(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: false });
+
+        window.addEventListener('touchend', () => {
+            if (!joyActive) return;
+            joyActive = false;
+            joystickThumb.style.transform = `translate(-50%, -50%)`;
+            sendCarMoveCmd(0, 0); 
+            lastSentSpeed = 0; lastSentSteer = 0;
+        });
+
+        function handleJoystickMove(clientX, clientY) {
+            let dx = clientX - joyCenterX;
+            let dy = clientY - joyCenterY;
+            const distance = Math.hypot(dx, dy);
+
+            if (distance > maxJoyR) {
+                dx = (dx / distance) * maxJoyR;
+                dy = (dy / distance) * maxJoyR;
+            }
+
+            joystickThumb.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+
+            let targetSpeed = Math.round((dy / maxJoyR) * 80);
+            let targetSteer = Math.round((-dx / maxJoyR) * 80);
+
+            if (Math.abs(targetSpeed) < 12) targetSpeed = 0;
+            if (Math.abs(targetSteer) < 12) targetSteer = 0;
+
+            if (targetSpeed !== lastSentSpeed || targetSteer !== lastSentSteer) {
+                sendCarMoveCmd(targetSpeed, targetSteer);
+                lastSentSpeed = targetSpeed;
+                lastSentSteer = targetSteer;
+            }
+        }
+
+        async function connectBle() {
+            try {
+                txtState.innerText = i18nTokens[currentLang]['statusSearching'];
+                txtState.style.color = "#FF9F0A";
+                isFirstStatusReceived = false;
+
+                bleDevice = await navigator.bluetooth.requestDevice({
+                    filters: [{ services: [BLE_SERVICE_UUID] }],
+                    optionalServices: [BLE_SERVICE_UUID]
+                });
+
+                bleDevice.addEventListener('gattserverdisconnected', onDisconnected);
+                txtState.innerText = i18nTokens[currentLang]['statusLinking'];
+                gattServer = await bleDevice.gatt.connect();
+
+                const service = await gattServer.getPrimaryService(BLE_SERVICE_UUID);
+                try { controlCharacteristic = await service.getCharacteristic(CONTROL_CHAR_UUID); } catch (e) {}
+
+                try {
+                    const videoChar = await service.getCharacteristic(VIDEO_CHAR_UUID);
+                    await videoChar.startNotifications();
+                    videoChar.addEventListener('characteristicvaluechanged', handleVideoData);
+                } catch (e) {}
+
+                try {
+                    const statusChar = await service.getCharacteristic(STATUS_CHAR_UUID);
+                    const initValue = await statusChar.readValue();
+                    handleStatusData({ target: { value: initValue } });
+
+                    if (statusPollIntervalId) clearInterval(statusPollIntervalId);
+                    statusPollIntervalId = setInterval(async () => {
+                        if (bleDevice && bleDevice.gatt.connected) {
+                            try {
+                                const latestValue = await statusChar.readValue();
+                                handleStatusData({ target: { value: latestValue } });
+                            } catch (readErr) {}
+                        } else {
+                            clearInterval(statusPollIntervalId);
+                        }
+                    }, 2000);
+                } catch (e) {}
+
+                if (controlCharacteristic) {
+                    txtState.innerText = "ONLINE";
+                    txtState.style.color = "var(--status-success)";
+                    document.getElementById('headerClock').innerText = i18nTokens[currentLang]['statusActive'];
+                    toggleUiElements(true);
+                    if (!isMobileMode) startDriveLoop(); 
+                } else {
+                    throw new Error("Char Error");
+                }
+            } catch (error) {
+                txtState.innerText = i18nTokens[currentLang]['statusError'];
+                txtState.style.color = "var(--status-danger)";
+                toggleUiElements(false);
+            }
+        }
+
+        function toggleUiElements(connected) {
+            btnConnect.disabled = connected;
+            btnDisconnect.disabled = !connected;
+            sliderLed.disabled = !connected;
+            btnBeep.disabled = !connected;
+            btnScreenshot.disabled = !connected;
+            btnRecord.disabled = !connected;
+
+            document.querySelectorAll('.mob-action-btn').forEach(btn => btn.disabled = !connected);
+            
+            if(!connected) {
+                if (isRecording) stopVideoRecording();
+                videoDisplayCanvas.style.display = 'none';
+                noVideoTip.style.display = 'flex';
+                txtFps.innerText = "-- FPS";
+                txtTemp.innerText = "--";
+                document.getElementById('headerClock').innerText = i18nTokens[currentLang]['statusStandby'];
+                stopDriveLoop();
+                if (statusPollIntervalId) { clearInterval(statusPollIntervalId); statusPollIntervalId = null; }
+                if (latestImageBitmap) { latestImageBitmap.close(); latestImageBitmap = null; }
+            }
+        }
+
+        function disconnectBle() {
+            if (bleDevice && bleDevice.gatt.connected) {
+                forceStopCar();
+                bleDevice.gatt.disconnect();
+            }
+        }
+
+        function onDisconnected() {
+            updateStateTextUI();
+            toggleUiElements(false);
+            stopDriveLoop();
+            resetAllKeys();
+            isFirstStatusReceived = false;
+        }
+
+        function handleVideoData(event) {
+            const dataView = event.target.value;
+            const data = new Uint8Array(dataView.buffer, dataView.byteOffset, dataView.byteLength);
+            if (data.length < 2) return;
+
+            if (data.length >= 4 && data[0] === 0xAB && data[1] === 0xCD) {
+                expectFrameTotalLen = (data[2] << 8) | data[3];
+                videoBufferReceivedLen = 0;
+                frameChunks = [];
+                return;
+            }
+            if (expectFrameTotalLen <= 0) return;
+
+            frameChunks.push(data);
+            videoBufferReceivedLen += data.length;
+
+            if (videoBufferReceivedLen >= expectFrameTotalLen) {
+                const blob = new Blob(frameChunks, { type: 'image/jpeg' });
+                
+                createImageBitmap(blob).then(imageBitmap => {
+                    requestAnimationFrame(() => {
+                        if (!bleDevice || !bleDevice.gatt.connected) {
+                            imageBitmap.close();
+                            return;
+                        }
+
+                        if (videoDisplayCanvas.style.display !== 'block') {
+                            videoDisplayCanvas.style.display = 'block';
+                            noVideoTip.style.display = 'none';
+                        }
+
+                        if (videoDisplayCanvas.width !== imageBitmap.width) {
+                            videoDisplayCanvas.width = imageBitmap.width;
+                            videoDisplayCanvas.height = imageBitmap.height;
+                        }
+
+                        canvasDisplayCtx.drawImage(imageBitmap, 0, 0);
+
+                        if (latestImageBitmap) { latestImageBitmap.close(); }
+                        latestImageBitmap = imageBitmap;
+
+                        frameCountFps++;
+                        const now = Date.now();
+                        if (now - lastFpsRefreshTime >= 1000) {
+                            txtFps.innerText = `${frameCountFps} FPS`;
+                            frameCountFps = 0;
+                            lastFpsRefreshTime = now;
+                        }
+                    });
+                }).catch(err => {});
+
+                expectFrameTotalLen = 0;
+                videoBufferReceivedLen = 0;
+                frameChunks = [];
+            }
+        }
+
+        function handleStatusData(event) {
+            try {
+                const dataView = event.target.value;
+                if (!dataView || dataView.byteLength < 1) return;
+                
+                const bright = dataView.getUint8(0);
+                txtBright.innerText = bright + "%";
+                
+                if (!isFirstStatusReceived) {
+                    sliderLed.value = bright;
+                    sliderValDisplay.innerText = bright + "%";
+                    updateSliderUI(bright);
+                    isFirstStatusReceived = true;
+                }
+
+                if (dataView.byteLength >= 2) {
+                    const temp = dataView.getUint8(1);
+                    txtTemp.innerText = (temp === 0xFF) ? "ERR" : `${temp}℃`;
+                }
+            } catch (err) {}
+        }
+
+        function addCmdToQueue(cmdBytes) {
+            if (!controlCharacteristic) return;
+            if (bleCmdQueue.length > 2 && cmdBytes[2] === CMD_CAR_MOVE) {
+                bleCmdQueue = bleCmdQueue.filter(c => c[2] !== CMD_CAR_MOVE);
+            }
+            bleCmdQueue.push(cmdBytes);
+        }
+
+        async function processNextCmd() {
+            if (isSendingCmd || bleCmdQueue.length === 0 || !controlCharacteristic) return;
+            isSendingCmd = true;
+            const cmd = bleCmdQueue.shift();
+            try {
+                await controlCharacteristic.writeValue(new Uint8Array(cmd));
+            } catch (e) {
+            } finally {
+                isSendingCmd = false;
+            }
+        }
+
+        function sendCarMoveCmd(speed, steer) { addCmdToQueue([0xAA, 0xFF, CMD_CAR_MOVE, speed & 0xFF, steer & 0xFF]); }
+        function sendLedBrightCmd(bright) { addCmdToQueue([0xAA, 0xFF, CMD_LED_BRIGHTNESS, bright & 0xFF]); }
+        function sendSimpleControlCmd(cmdCode) { addCmdToQueue([0xAA, 0xFF, cmdCode]); }
+
+        function forceStopCar() {
+            const cmd = [0xAA, 0xFF, CMD_CAR_MOVE, 0, 0];
+            if (controlCharacteristic) { controlCharacteristic.writeValue(new Uint8Array(cmd)).catch(()=>{}); }
+            lastSentSpeed = 0; lastSentSteer = 0;
+        }
+
+        function startDriveLoop() {
+            stopDriveLoop();
+            lastSentSpeed = 0; lastSentSteer = 0;
+            driveLoopIntervalId = setInterval(() => {
+                let speed = 0; let steer = 0;
+                if (keyStates.w) speed = -80;
+                if (keyStates.s) speed = 80;
+                if (keyStates.a) steer = 80;
+                if (keyStates.d) steer = -80;
+
+                if (speed !== 0 || steer !== 0) {
+                    sendCarMoveCmd(speed, steer);
+                    lastSentSpeed = speed; lastSentSteer = steer;
+                } else {
+                    if (lastSentSpeed !== 0 || lastSentSteer !== 0) {
+                        sendCarMoveCmd(0, 0);
+                        lastSentSpeed = 0; lastSentSteer = 0;
+                    }
+                }
+            }, 40);
+        }
+
+        function stopDriveLoop() { if (driveLoopIntervalId) { clearInterval(driveLoopIntervalId); driveLoopIntervalId = null; } }
+
+        function resetAllKeys() {
+            for (let key in keyStates) { keyStates[key] = false; }
+            if (servoIntervalId) { clearInterval(servoIntervalId); servoIntervalId = null; }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (!controlCharacteristic || isMobileMode) return;
+            const key = e.key.toLowerCase();
+            const controlKeys = ['w','s','a','d','i','k',' '];
+            if (controlKeys.includes(key)) { e.preventDefault(); }
+            if (key in keyStates) { keyStates[key] = true; }
+
+            if (key === 'i' && !servoIntervalId) {
+                sendSimpleControlCmd(CMD_SERVO_UP);
+                servoIntervalId = setInterval(() => sendSimpleControlCmd(CMD_SERVO_UP), 100);
+            } else if (key === 'k' && !servoIntervalId) {
+                sendSimpleControlCmd(CMD_SERVO_DOWN);
+                servoIntervalId = setInterval(() => sendSimpleControlCmd(CMD_SERVO_DOWN), 100);
+            }
+            if (e.key === ' ' && !e.repeat) { sendSimpleControlCmd(CMD_BEEP); }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (!controlCharacteristic || isMobileMode) return;
+            const key = e.key.toLowerCase();
+            if (key in keyStates) { keyStates[key] = false; }
+            if (key === 'i' || key === 'k') { clearInterval(servoIntervalId); servoIntervalId = null; }
+        });
+
+        window.addEventListener('blur', () => { resetAllKeys(); forceStopCar(); });
+
+        function saveScreenshot() {
+            if (!latestImageBitmap) return;
+            const canvas = document.createElement('canvas');
+            canvas.width = latestImageBitmap.width;
+            canvas.height = latestImageBitmap.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(latestImageBitmap, 0, 0);
+            
+            const link = document.createElement('a');
+            link.download = `ESPAuto_SNAP_${Date.now()}.jpg`;
+            link.href = canvas.toDataURL('image/jpeg', 0.92);
+            link.click();
+        }
+
+        function toggleVideoRecording() { if (!isRecording) startVideoRecording(); else stopVideoRecording(); }
+
+        function startVideoRecording() {
+            if (!latestImageBitmap) return;
+            recordedChunks = [];
+            recordCanvas.width = latestImageBitmap.width;
+            recordCanvas.height = latestImageBitmap.height;
+
+            function syncRenderFrame() {
+                if (!isRecording) return;
+                if (latestImageBitmap) {
+                    canvasCtx.drawImage(latestImageBitmap, 0, 0, recordCanvas.width, recordCanvas.height);
+                }
+                recordCanvasId = requestAnimationFrame(syncRenderFrame);
+            }
+            isRecording = true;
+            syncRenderFrame();
+
+            const stream = recordCanvas.captureStream(30);
+            let options = { mimeType: 'video/mp4;codecs=avc1.42E01E,mp4a.40.2' };
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) { options = { mimeType: 'video/mp4' }; }
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) { options = {}; }
+
+            try { mediaRecorder = new MediaRecorder(stream, options); } catch (e) { mediaRecorder = new MediaRecorder(stream); }
+
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data && event.data.size > 0) recordedChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunks, { type: 'video/mp4' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.download = `ESPAuto_REC_${Date.now()}.mp4`;
+                a.href = url; a.click();
+                setTimeout(() => URL.revokeObjectURL(url), 100);
+            };
+
+            mediaRecorder.start(200);
+            btnRecord.style.background = "rgba(255, 69, 58, 0.25)";
+            btnRecord.style.borderColor = "rgba(255, 69, 58, 0.4)";
+            lblRecord.innerText = i18nTokens[currentLang]['btnRecordStop'];
+            recIndicator.style.display = 'flex';
+            
+            recordStartTime = Date.now();
+            recordTimerInterval = setInterval(() => {
+                const elapsedSec = Math.floor((Date.now() - recordStartTime) / 1000);
+                const mins = String(Math.floor(elapsedSec / 60)).padStart(2, '0');
+                const secs = String(elapsedSec % 60).padStart(2, '0');
+                recTimer.innerText = `${mins}:${secs}`;
+            }, 100);
+        }
+
+        function stopVideoRecording() {
+            if (!isRecording) return;
+            isRecording = false;
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+            if (recordCanvasId) cancelAnimationFrame(recordCanvasId);
+            clearInterval(recordTimerInterval);
+
+            btnRecord.style.background = "var(--bg-card-active)";
+            btnRecord.style.borderColor = "var(--border-light)";
+            lblRecord.innerText = i18nTokens[currentLang]['btnRecord'];
+            recIndicator.style.display = 'none';
+            recTimer.innerText = "00:00";
+        }
+
+        applyLanguage(currentLang);
+    </script>
+</body>
+</html>
