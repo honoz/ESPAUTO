@@ -914,7 +914,7 @@
                 videoDisplayCanvas.style.display = 'none';
                 noVideoTip.style.display = 'flex';
                 txtFps.innerText = "-- FPS";
-                txtTemp.innerText = "--";
+                txtTemp.innerText = "-- ℃";
                 document.getElementById('headerClock').innerText = i18nTokens[currentLang]['statusStandby'];
                 stopDriveLoop();
                 if (statusPollIntervalId) { clearInterval(statusPollIntervalId); statusPollIntervalId = null; }
