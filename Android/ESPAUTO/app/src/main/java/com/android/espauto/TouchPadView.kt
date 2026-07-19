@@ -7,7 +7,10 @@
 package com.android.espauto
 
 import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.MotionEvent
 import android.widget.FrameLayout
 import kotlin.math.atan2
@@ -30,9 +33,26 @@ class TouchPadView @JvmOverloads constructor(
     private var centerY = 0f
     private var baseRadius = 0f
 
+    // 触摸点相关属性
+    private var touchX = 0f
+    private var touchY = 0f
+    private var isTouching = false
+    
+    // 绘制触摸点的画笔 - 使用与按钮相同的 colorControlHighlight 颜色
+    private val touchPaint = Paint().apply {
+        color = getThemeColor(context, android.R.attr.colorControlHighlight)
+        style = Paint.Style.FILL
+        isAntiAlias = true
+    }
+    
+    // 触摸点半径（可根据需要调整）
+    private val touchPointRadius = 40f
+
     init {
         // 利用布局充气器（Inflate）动态加载控制手柄的外观 xml 结构并将其挂载在当前 View 容器树下
         inflate(context, R.layout.touch_pad_layout, this)
+        // 启用自定义绘制
+        setWillNotDraw(false)
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -46,6 +66,12 @@ class TouchPadView @JvmOverloads constructor(
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.action) {
             MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
+                // 更新触摸点位置
+                touchX = event.x
+                touchY = event.y
+                isTouching = true
+                invalidate() // 触发重绘以显示触摸点
+                
                 // 计算当前触控点相对于物理圆心的极坐标增量 dx, dy
                 var dx = event.x - centerX
                 var dy = event.y - centerY
@@ -67,9 +93,29 @@ class TouchPadView @JvmOverloads constructor(
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 // 当离手或事件流由于外在干扰被截断时，对外发出刹车挂起通知
+                isTouching = false
+                invalidate() // 触发重绘以隐藏触摸点
                 listener?.onStop()
             }
         }
         return true
+    }
+    
+    override fun dispatchDraw(canvas: Canvas) {
+        super.dispatchDraw(canvas)
+        
+        // 在子视图绘制完成后绘制触摸点，确保触摸点显示在最上层
+        if (isTouching) {
+            canvas.drawCircle(touchX, touchY, touchPointRadius, touchPaint)
+        }
+    }
+    
+    /**
+     * 从主题中获取颜色属性值
+     */
+    private fun getThemeColor(context: Context, attr: Int): Int {
+        val typedValue = TypedValue()
+        context.theme.resolveAttribute(attr, typedValue, true)
+        return typedValue.data
     }
 }
