@@ -1,9 +1,3 @@
-/*
- * ESPAUTO
- * Copyright (c) 2026 honoz
- * Licensed under the MIT License.
- */
- 
 #include "esp_camera.h"
 #include <NimBLEDevice.h>
 #include <Adafruit_NeoPixel.h>
@@ -87,11 +81,15 @@ portMUX_TYPE motorMux = portMUX_INITIALIZER_UNLOCKED;
 volatile uint32_t lastMoveCmdTime = 0; // 记录最后一次收到移动指令的时间戳
 const uint32_t MOVE_TIMEOUT_MS = 100;  // 100ms 无指令自动刹车，防止 BLE 断连失控
 
-// BLE 服务与特征值标准 UUID (全广播型 16-bit 映射到 128-bit)
+// BLE 服务与特征值标准 UUID
 #define SERVICE_UUID                  "0000ffe0-0000-1000-8000-00805f9b34fb"
 #define CHARACTERISTIC_VIDEO_UUID     "0000ffe1-0000-1000-8000-00805f9b34fb"
 #define CHARACTERISTIC_CTRL_UUID      "0000ffe2-0000-1000-8000-00805f9b34fb"
 #define CHARACTERISTIC_DEV_STATUS_UUID "0000ffe3-0000-1000-8000-00805f9b34fb"
+
+// 厂商自定义数据标识（Company ID），用于设备发现阶段的精准匹配
+#define MANUFACTURER_COMPANY_ID       0xE5E5
+#define MANUFACTURER_PRODUCT_ID       0x01
 
 const char* BLE_DEVICE_NAME = "ESPAUTO Rover";
 NimBLEServer* pServer = nullptr;
@@ -108,14 +106,6 @@ QueueHandle_t videoQueue = NULL;       // 跨核心高并发视频帧指针队�
 // -----------------------------------------------------------------------------
 // 4. 辅助工具函数
 // -----------------------------------------------------------------------------
-
-// 从 128位 UUID 字符串中提取 16位 核心服务识别码
-uint16_t getUuid16(const char* uuid_str) {
-    if (strlen(uuid_str) != 36) return 0;
-    char uuid_16_str[5] = {0};
-    strncpy(uuid_16_str, uuid_str + 4, 4);
-    return (uint16_t)strtoul(uuid_16_str, NULL, 16);
-}
 
 // 获取并计算 ESP32-S3 芯片内部的 CPU 核心温度
 float readCPUTemperature() {
@@ -283,17 +273,40 @@ void initSpeaker() {
 // 通过 I2S 总线阻塞式输出方波信号，产生提示音 (1kHz 持续 200ms)
 void playBeepSound() {
     const int sampleRate = 16000;
-    const int freq = 1000;
-    const int duration = 200;
+    const int duration = 300;
     const int samples = sampleRate * duration / 1000;
     int16_t buffer[128];
     int idx = 0;
 
+    const float freq1 = 400.0;
+    const float freq2 = 800.0;
+    const float attackMs = 5.0;
+    const float releaseMs = 20.0;
+    const float attackSamples = sampleRate * attackMs / 1000.0;
+    const float releaseStartSample = samples - sampleRate * releaseMs / 1000.0;
+    const float twoPi = 2.0 * M_PI;
+
     for (int i = 0; i < samples; i++) {
-        // 生成纯方波音频样本数据
-        int16_t sample = (i % (sampleRate / freq) < (sampleRate / freq / 2)) ? 25000 : -25000;
-        buffer[idx++] = sample; // 左声道
-        buffer[idx++] = sample; // 右声道
+        float t = (float)i / sampleRate;
+
+        float envelope;
+        if (i < attackSamples) {
+            envelope = (float)i / attackSamples;
+        } else if (i >= releaseStartSample) {
+            envelope = (float)(samples - i) / (samples - releaseStartSample);
+        } else {
+            envelope = 1.0;
+        }
+
+        float phase1 = twoPi * freq1 * t;
+        float phase2 = twoPi * freq2 * t;
+        float square1 = ((int)(i % (int)(sampleRate / freq1)) < (int)(sampleRate / freq1 / 2)) ? 1.0 : -1.0;
+
+        float sample = (sin(phase1) * 0.5 + sin(phase2) * 0.25 + square1 * 0.15) * envelope;
+        int16_t s = (int16_t)(sample * 28000);
+
+        buffer[idx++] = s;
+        buffer[idx++] = s;
 
         if (idx >= 128) {
             size_t bytesWritten;
@@ -397,8 +410,14 @@ void initCamera() {
     if (err != ESP_OK) ESP.restart();    // 摄像头异常则自动复位系统
 
     sensor_t* s = esp_camera_sensor_get();
-    s->set_hmirror(s, 1); // 开启水平镜像翻转
+    s->set_hmirror(s, 1);
     s->set_brightness(s, 0);
+    s->set_whitebal(s, 1);       // 启用自动白平衡 AWB
+    s->set_awb_gain(s, 1);       // 启用 AWB 增益
+    s->set_wpc(s, 1);            // 启用白像素校正
+    s->set_bpc(s, 1);            // 启用黑像素校正
+    s->set_lenc(s, 1);           // 启用镜头校正
+    s->set_saturation(s, 0);     // 饱和度归中
 }
 
 // 初始化电机所占用四路底层独立的 PWM 发生通道
@@ -433,14 +452,13 @@ void initLed() {
 // 配置高吞吐率低功耗蓝牙 (NimBLE) 全套参数
 void initBLE() {
     NimBLEDevice::init(BLE_DEVICE_NAME);
-    NimBLEDevice::setPower(ESP_PWR_LVL_P9); // 物理最大发射功率 (+9dBm)，增强过墙及天线范围
-    NimBLEDevice::setMTU(512);              // 开启 512 字节的最大包传输限制提升有效负荷
-    NimBLEDevice::setDefaultPhy(BLE_GAP_LE_PHY_2M, BLE_GAP_LE_PHY_2M); // 强制切换 2Mbps 高速调制模式
+    NimBLEDevice::setPower(ESP_PWR_LVL_P9);
+    NimBLEDevice::setMTU(512);
+    NimBLEDevice::setDefaultPhy(BLE_GAP_LE_PHY_2M, BLE_GAP_LE_PHY_2M);
     
     pServer = NimBLEDevice::createServer();
     pServer->setCallbacks(new ServerCallbacks());
 
-    // 绑定并创建服务与通道特征
     NimBLEService* pService = pServer->createService(SERVICE_UUID);
     pVideoChar = pService->createCharacteristic(CHARACTERISTIC_VIDEO_UUID, NIMBLE_PROPERTY::NOTIFY);
     pCtrlChar = pService->createCharacteristic(CHARACTERISTIC_CTRL_UUID, NIMBLE_PROPERTY::WRITE);
@@ -453,7 +471,11 @@ void initBLE() {
     pService->start();
     NimBLEAdvertising* pAdvertising = NimBLEDevice::getAdvertising();
     pAdvertising->setName(BLE_DEVICE_NAME);
-    pAdvertising->addServiceUUID(getUuid16(SERVICE_UUID));
+    // 使用厂商自定义数据广播，替代 Service UUID 广播实现设备发现
+    uint8_t mfgData[] = { (uint8_t)(MANUFACTURER_COMPANY_ID & 0xFF),
+                          (uint8_t)(MANUFACTURER_COMPANY_ID >> 8),
+                          MANUFACTURER_PRODUCT_ID };
+    pAdvertising->setManufacturerData(mfgData, sizeof(mfgData));
     pAdvertising->start();
 }
 
@@ -477,7 +499,7 @@ void videoSendTask(void* pvParameters) {
                 uint32_t len = fb->len;
                 head[2] = (uint8_t)(len >> 8);  // 拼装长度高字节
                 head[3] = (uint8_t)len;         // 拼装长度低字节
-                
+
                 pVideoChar->setValue(head, 4);
                 pVideoChar->notify();
                 vTaskDelay(pdMS_TO_TICKS(1));   // 为接收端处理多段封包首部留出同步时间
@@ -488,7 +510,7 @@ void videoSendTask(void* pvParameters) {
                     pVideoChar->setValue(fb->buf + offset, l);
                     pVideoChar->notify();
                     offset += l;
-                    
+
                     // 硬件流控限速：配合 BLE 空口物理层实际速率进行 3ms 步进延时，防止内部缓冲区产生死锁崩溃
                     vTaskDelay(pdMS_TO_TICKS(3));
                 }

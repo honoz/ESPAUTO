@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">ESPAUTO</string>
+    <string name="toast_gravity_on">Gravity control enabled, touchpad disabled</string>
+    <string name="toast_gravity_off">Gravity control disabled, touchpad enabled</string>
+    <string name="toast_no_live_frame">No real-time frame available, cannot record</string>
+    <string name="toast_no_live_frame_screenshot">No real-time frame available, cannot take screenshot</string>
+    <string name="toast_no_connection_beep">Device not connected, cannot beep</string>
+    <string name="toast_no_connection_mode">Device not connected, cannot toggle gravity mode</string>
+    <string name="toast_beep_sent">Beep command sent</string>
+    <string name="toast_video_recorded">Video saved to gallery</string>
+    <string name="toast_video_started">Video recording started</string>
+    <string name="toast_screenshot_success">Screenshot saved to gallery</string>
+    <string name="toast_screenshot_failed">Failed to save screenshot</string>
+    <string name="toast_bluetooth_permission_denied">Bluetooth permission is required to scan and connect to the car. Please enable it in Settings.</string>
+    <string name="toast_bluetooth_turned_off">Bluetooth turned off, connection disconnected</string>
+    <string name="tip_connecting_device">Connecting to device</string>
+    <string name="tip_connecting_target_device">Connecting to %1$s…</string>
+    <string name="tip_no_video_stream">No video stream received, please restart the car</string>
+    <string name="tip_reconnecting">Connection lost, reconnecting…</string>
+    <string name="tip_reconnect_failed">Reconnection failed, please connect manually</string>
+    <string name="tip_scanning_device">Scanning for devices…</string>
+    <string name="tip_bluetooth_off">Bluetooth is turned off, please enable Bluetooth</string>
+    <string name="status_live">Live</string>
+    <string name="status_record">Record %1$s</string>
+    <string name="device_unknown">Unknown Device</string>
+    <string name="ble_tip_connect_success">Connected successfully, waiting for video stream</string>
+    <string name="ble_tip_disconnected">Disconnected</string>
+    <string name="label_servo">Gimbal</string>
+    <string name="label_led_control">LED Control</string>
+    <string name="label_slide_control">Slide Control</string>
+    <string name="device_name_placeholder">Device Name</string>
+    <string name="device_mac_placeholder">MAC Address</string>
+    <string name="tip_scan_no_device">No devices detected</string>
+    <string name="tip_scan_complete">Select a device to connect</string>
+    <string name="format_temperature">%1$d℃</string>
+    <string name="format_signal_strength">%1$d%%</string>
+    <string name="format_video_fps">%1$d FPS</string>
+    <string name="placeholder_signal_strength">---%</string>
+    <string name="placeholder_temperature">---℃</string>
+    <string name="placeholder_video_fps">---FPS</string>
+    <string name="desc_scan_device">Scan and connect device</string>
+    <string name="desc_video_record">Record video</string>
+    <string name="desc_screenshot">Take screenshot</string>
+    <string name="desc_device_beep">Beep</string>
+    <string name="desc_mode_switch">Gravity control</string>
+    <string name="desc_servo_up">Gimbal up</string>
+    <string name="desc_servo_down">Gimbal down</string>
+</resources>

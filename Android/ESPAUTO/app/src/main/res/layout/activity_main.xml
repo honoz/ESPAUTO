@@ -1,0 +1,489 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingHorizontal="15dp"
+    tools:context=".MainActivity">
+
+    <RelativeLayout
+        android:id="@+id/rl_top_app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginBottom="15dp"
+        android:gravity="center_vertical"
+        app:layout_scrollFlags="scroll|enterAlways">
+
+        <TextView
+            android:id="@+id/tv_app_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="15dp"
+            android:layout_toStartOf="@id/btn_scan_device"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/app_name"
+            android:textSize="23sp"
+            android:textColor="@color/md_theme_onSurface"
+            tools:ignore="VisualLintSystemUi" />
+
+        <ImageButton
+            android:id="@+id/btn_scan_device"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="15dp"
+            android:background="@drawable/ic_connection_bg"
+            android:contentDescription="@string/desc_scan_device"
+            android:padding="7dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_bluetooth_connect"
+            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+    </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.2"
+        android:background="@drawable/bg_panel"
+        android:padding="10dp">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cv_video_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:cardBackgroundColor="@color/md_theme_surfaceVariant"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="0dp">
+
+            <ImageView
+                android:id="@+id/iv_video_display"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@null"
+                android:scaleType="centerCrop"
+                tools:ignore="ImageContrastCheck" />
+
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:id="@+id/ll_live_status_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_status"
+            app:drawableStartCompat="@drawable/ic_live"
+            android:drawablePadding="5dp"
+            android:gravity="center"
+            android:paddingHorizontal="5dp"
+            android:paddingVertical="2dp"
+            android:text="@string/status_live"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/ll_device_info_panel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            tools:ignore="UseCompoundDrawables">
+
+            <TextView
+                android:id="@+id/tv_signal_strength"
+                android:layout_width="52dp"
+                android:layout_height="wrap_content"
+                app:drawableStartCompat="@drawable/ic_signal_0_bar"
+                android:drawablePadding="3dp"
+                android:text="@string/placeholder_signal_strength"
+                android:textColor="@android:color/white" />
+
+            <TextView
+                android:id="@+id/tv_temperature"
+                android:layout_width="52dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="2dp"
+                app:drawableStartCompat="@drawable/ic_thermometer"
+                android:drawablePadding="3dp"
+                android:text="@string/placeholder_temperature"
+                android:textColor="@android:color/white" />
+
+            <TextView
+                android:id="@+id/tv_video_fps"
+                android:layout_width="66dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="3dp"
+                app:drawableStartCompat="@drawable/ic_fps"
+                android:drawablePadding="3dp"
+                android:text="@string/placeholder_video_fps"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_loading_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+
+            <FrameLayout
+                android:id="@+id/fl_icon_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/iv_no_device_icon"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:contentDescription="@null"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_no_device"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/iv_reconnect_icon"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:contentDescription="@null"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_refresh"
+                    android:stateListAnimator="@animator/pressed_state_list"
+                    android:visibility="gone" />
+
+                <ProgressBar
+                    android:id="@+id/pb_loading_indicator"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:indeterminate="true"
+                    android:indeterminateDrawable="@drawable/anim_loading"
+                    android:visibility="gone" />
+
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tv_loading_tip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/fl_icon_container"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="15dp"
+                android:text="@string/tip_scan_no_device"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/ll_scan_panel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="8dp">
+
+                    <TextView
+                        android:id="@+id/tv_scan_tip"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/tip_scanning_device"
+                        android:textColor="@android:color/white"
+                        android:textSize="14sp" />
+
+                    <ProgressBar
+                        android:id="@+id/pb_scan_indicator"
+                        style="?android:attr/progressBarStyleSmall"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:indeterminateTint="@android:color/white" />
+
+                </LinearLayout>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_scan_devices"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:paddingHorizontal="5dp"
+                        android:clipToPadding="false" />
+
+                    <LinearLayout
+                        android:id="@+id/ll_skeleton_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="5dp">
+
+                        <include layout="@layout/item_skeleton_device" />
+
+                        <include layout="@layout/item_skeleton_device" />
+
+                        <include layout="@layout/item_skeleton_device" />
+
+                        <include layout="@layout/item_skeleton_device" />
+
+                    </LinearLayout>
+
+                </FrameLayout>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </FrameLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginVertical="15dp"
+        android:layout_weight="0.3"
+        android:background="@drawable/bg_panel">
+
+        <ImageButton
+            android:id="@+id/btn_video_record"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/bg_button_ripple"
+            android:contentDescription="@string/desc_video_record"
+            android:padding="20dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_video"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_screenshot"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SpeakableTextPresentCheck" />
+
+        <ImageButton
+            android:id="@+id/btn_screenshot"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/bg_button_ripple"
+            android:contentDescription="@string/desc_screenshot"
+            android:padding="20dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_camera"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_mode_switch"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toEndOf="@id/btn_video_record"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SpeakableTextPresentCheck" />
+
+        <ImageButton
+            android:id="@+id/btn_mode_switch"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/bg_button_ripple"
+            android:contentDescription="@string/desc_mode_switch"
+            android:padding="20dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_gravity_off"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_device_beep"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toEndOf="@id/btn_screenshot"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SpeakableTextPresentCheck" />
+
+        <ImageButton
+            android:id="@+id/btn_device_beep"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/bg_button_ripple"
+            android:contentDescription="@string/desc_device_beep"
+            android:padding="20dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_ring"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toEndOf="@id/btn_mode_switch"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SpeakableTextPresentCheck" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="15dp"
+        android:layout_weight="1.5">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/ll_servo_control"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/bg_panel"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/cl_right_control_panel"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageButton
+                android:id="@+id/btn_servo_up"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/bg_button_ripple"
+                android:contentDescription="@string/desc_servo_up"
+                android:padding="30dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_chevron_up"
+                app:layout_constraintBottom_toTopOf="@id/tv_servo_label"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_chainStyle="spread"
+                app:layout_constraintVertical_weight="1"
+                tools:ignore="SpeakableTextPresentCheck" />
+
+            <TextView
+                android:id="@+id/tv_servo_label"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:gravity="center"
+                android:text="@string/label_servo"
+                android:textColor="@color/md_theme_outline"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toTopOf="@id/btn_servo_down"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btn_servo_up"
+                app:layout_constraintVertical_weight="1" />
+
+            <ImageButton
+                android:id="@+id/btn_servo_down"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/bg_button_ripple"
+                android:contentDescription="@string/desc_servo_down"
+                android:padding="30dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_chevron_down"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_servo_label"
+                app:layout_constraintVertical_weight="1"
+                tools:ignore="SpeakableTextPresentCheck" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_right_control_panel"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="2"
+            app:layout_constraintStart_toEndOf="@id/ll_servo_control"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:id="@+id/ll_led_control"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/bg_panel"
+                android:gravity="center_vertical"
+                android:orientation="vertical"
+                android:paddingHorizontal="15dp"
+                app:layout_constraintBottom_toTopOf="@id/touch_pad_control"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp"
+                    android:orientation="horizontal"
+                    tools:ignore="UseCompoundDrawables,VisualLintBounds">
+
+                    <ImageView
+                        android:id="@+id/iv_led_icon"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="6dp"
+                        android:layout_marginEnd="6dp"
+                        android:contentDescription="@null"
+                        app:srcCompat="@drawable/ic_brightness"
+                        tools:ignore="VisualLintBounds" />
+
+                    <TextView
+                        android:id="@+id/tv_led_control_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:text="@string/label_led_control"
+                        android:textColor="@color/md_theme_outline"
+                        android:textSize="16sp"
+                        tools:ignore="VisualLintLocaleText,VisualLintBounds" />
+
+                </LinearLayout>
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/slider_led_brightness"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="-7dp"
+                    android:layout_marginEnd="-7dp"
+                    android:valueFrom="0"
+                    android:valueTo="255"
+                    app:haloColor="@android:color/transparent"
+                    app:labelBehavior="gone"
+                    app:thumbColor="@android:color/white"
+                    app:thumbRadius="10dp"
+                    app:trackColorActive="@color/md_theme_outline"
+                    app:trackColorInactive="@color/md_theme_surfaceVariant"
+                    app:trackCornerRadius="14dp"
+                    app:trackHeight="22dp"
+                    tools:ignore="SpeakableTextPresentCheck,VisualLintBounds" />
+
+            </LinearLayout>
+
+            <com.android.espauto.TouchPadView
+                android:id="@+id/touch_pad_control"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/bg_panel"
+                android:padding="20dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:ignore="VisualLintBounds" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
