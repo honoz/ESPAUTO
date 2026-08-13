@@ -399,12 +399,12 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:paddingStart="15dp"
-            android:paddingEnd="15dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_weight="2"
             app:layout_constraintStart_toEndOf="@id/ll_servo_control"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="RtlSymmetry">
 
             <LinearLayout
                 android:id="@+id/ll_led_control"

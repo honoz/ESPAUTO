@@ -39,6 +39,7 @@ android {
     packaging {
         resources {
             excludes += "DebugProbesKt.bin"
+            excludes += "kotlin-tooling-metadata.json"
         }
     }
 }
