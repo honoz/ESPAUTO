@@ -582,7 +582,7 @@
 <header>
     <div class="logo-area">
         <span class="logo-title">ESPAUTO</span>
-        <span class="logo-badge">PRO v1.1</span>
+        <span class="logo-badge">v1.1</span>
     </div>
     <div class="header-right">
         <div id="headerClock" data-i18n="statusStandby">DEVICE STANDBY</div>
@@ -711,10 +711,10 @@
 <script>
     const i18nTokens = {
         'zh-CN': {
-            statusStandby: "设备就绪 STANDBY",
+            statusStandby: "设备就绪",
             statusSearching: "正在搜索",
             statusLinking: "正在配对",
-            statusActive: "系统就绪 ACTIVE",
+            statusActive: "系统就绪",
             statusError: "连接异常",
             videoTip: "等待无线图传建立...",
             btnConnect: "建立连接",
@@ -932,6 +932,92 @@
         servoIntervalId = setInterval(() => sendSimpleControlCmd(CMD_SERVO_DOWN), 100);
     });
     mBtnServoDown.addEventListener('touchend', (e) => { e.preventDefault(); clearInterval(servoIntervalId); servoIntervalId = null; });
+
+    let joystickActive = false;
+    let joystickCenterX = 0, joystickCenterY = 0;
+    const JOYSTICK_MAX_RADIUS = 48;
+
+    function getJoystickCenter() {
+        const rect = joystickContainer.getBoundingClientRect();
+        return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    }
+
+    function updateJoystickThumb(dx, dy) {
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const clampedDist = Math.min(dist, JOYSTICK_MAX_RADIUS);
+        const angle = Math.atan2(dy, dx);
+        const clampedX = Math.cos(angle) * clampedDist;
+        const clampedY = Math.sin(angle) * clampedDist;
+        joystickThumb.style.transform = `translate(calc(-50% + ${clampedX}px), calc(-50% + ${clampedY}px))`;
+        return { x: clampedX / JOYSTICK_MAX_RADIUS, y: clampedY / JOYSTICK_MAX_RADIUS };
+    }
+
+    function resetJoystickThumb() {
+        joystickThumb.style.transform = 'translate(-50%, -50%)';
+    }
+
+    let joystickSpeed = 0, joystickSteer = 0;
+    let joystickLoopId = null;
+
+    function startJoystickDriveLoop() {
+        if (joystickLoopId) return;
+        joystickLoopId = setInterval(() => {
+            if (!controlCharacteristic) return;
+            if (joystickSpeed !== 0 || joystickSteer !== 0) {
+                sendCarMoveCmd(joystickSpeed, joystickSteer);
+                lastSentSpeed = joystickSpeed;
+                lastSentSteer = joystickSteer;
+            } else {
+                if (lastSentSpeed !== 0 || lastSentSteer !== 0) {
+                    sendCarMoveCmd(0, 0);
+                    lastSentSpeed = 0;
+                    lastSentSteer = 0;
+                }
+            }
+        }, 40);
+    }
+
+    function stopJoystickDriveLoop() {
+        if (joystickLoopId) { clearInterval(joystickLoopId); joystickLoopId = null; }
+    }
+
+    joystickContainer.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (!controlCharacteristic) return;
+        joystickActive = true;
+        const center = getJoystickCenter();
+        joystickCenterX = center.x;
+        joystickCenterY = center.y;
+        startJoystickDriveLoop();
+    }, { passive: false });
+
+    joystickContainer.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if (!joystickActive) return;
+        const touch = e.touches[0];
+        const dx = touch.clientX - joystickCenterX;
+        const dy = touch.clientY - joystickCenterY;
+        const normalized = updateJoystickThumb(dx, dy);
+        joystickSteer = Math.round(-normalized.x * 80);
+        joystickSpeed = Math.round(normalized.y * 80);
+    }, { passive: false });
+
+    function onJoystickEnd(e) {
+        e.preventDefault();
+        joystickActive = false;
+        joystickSpeed = 0;
+        joystickSteer = 0;
+        resetJoystickThumb();
+        stopJoystickDriveLoop();
+        if (controlCharacteristic) {
+            sendCarMoveCmd(0, 0);
+            lastSentSpeed = 0;
+            lastSentSteer = 0;
+        }
+    }
+
+    joystickContainer.addEventListener('touchend', onJoystickEnd, { passive: false });
+    joystickContainer.addEventListener('touchcancel', onJoystickEnd, { passive: false });
 
     setInterval(processNextCmd, CMD_SEND_INTERVAL_MS);
 
