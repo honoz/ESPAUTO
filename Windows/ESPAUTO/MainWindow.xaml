@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="ESPAUTO.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:models="using:ESPAUTO.Models"
+    Title="ESPAUTO">
+
+    <Grid x:Name="RootGrid" IsTabStop="True"
+          KeyDown="RootGrid_KeyDown" KeyUp="RootGrid_KeyUp"
+          PreviewKeyDown="RootGrid_PreviewKeyDown">
+
+        <!-- 标题栏区域（ExtendsContentIntoTitleBar 后需手动显示标题） -->
+        <TextBlock Text="ESPAUTO" FontSize="12" FontWeight="SemiBold"
+                   Margin="10,8,0,0" VerticalAlignment="Top"
+                   IsHitTestVisible="False"/>
+
+        <!-- 主体：左右分栏 -->
+        <Grid Padding="20" Margin="0,32,0,0" ColumnSpacing="20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="320"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 左侧：设备扫描面板 -->
+            <Border Grid.Column="0"
+                    CornerRadius="12" Padding="20"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" VerticalAlignment="Stretch">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 标题 -->
+                    <TextBlock Grid.Row="0" Text="设备扫描" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,12"/>
+
+                    <!-- 扫描按钮 -->
+                    <Button Grid.Row="1" x:Name="BtnScan" Click="BtnScan_Click"
+                            HorizontalAlignment="Stretch" Height="40"
+                            CornerRadius="8" Style="{ThemeResource AccentButtonStyle}"
+                            Margin="0,0,0,8">
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                            <FontIcon Glyph="&#xE721;" FontSize="14"/>
+                            <TextBlock x:Name="BtnScanText" Text="开始扫描"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- 状态文字 -->
+                    <TextBlock Grid.Row="2" x:Name="ScanStatusText" Text="点击扫描按钮搜索附近的低功耗蓝牙设备"
+                               FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               Margin="0,0,0,12" TextWrapping="Wrap"/>
+
+                    <!-- 设备列表 -->
+                    <ListView Grid.Row="3" x:Name="DeviceList" SelectionMode="Single"
+                              Background="Transparent" BorderThickness="0"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:BleDeviceInfo">
+                                <Border Padding="12,10" CornerRadius="8"
+                                        Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                        Margin="0,2">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" Spacing="2">
+                                            <TextBlock Text="{x:Bind Name}" FontSize="13" FontWeight="Medium"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="{x:Bind AddressText}"
+                                                       FontSize="11" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4"
+                                                    VerticalAlignment="Center">
+                                            <TextBlock Text="{x:Bind SignalPercent}" FontSize="12"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                            <TextBlock Text="%" FontSize="10"
+                                                       Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <!-- 空提示 -->
+                    <TextBlock Grid.Row="3" x:Name="NoDeviceText" Text="暂无设备"
+                               FontSize="13" Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                               HorizontalAlignment="Center" Padding="0,40"
+                               Visibility="Visible"/>
+
+                    <!-- 连接/断开按钮 -->
+                    <Button Grid.Row="4" x:Name="BtnConnectDevice" Click="BtnConnectDevice_Click"
+                            HorizontalAlignment="Stretch" Height="44"
+                            CornerRadius="8" Style="{ThemeResource AccentButtonStyle}"
+                            IsEnabled="False" Margin="0,12,0,0">
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                            <FontIcon x:Name="BtnConnectIcon" Glyph="&#xE768;" FontSize="14"/>
+                            <TextBlock x:Name="BtnConnectText" Text="连接选中设备"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- 右侧：视频 + 控制 -->
+            <ScrollViewer Grid.Column="1"
+                          VerticalScrollBarVisibility="Hidden">
+                <StackPanel Spacing="16">
+
+                    <!-- 视频区域 -->
+                    <Border x:Name="VideoBorder" CornerRadius="12" Background="Black"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1" HorizontalAlignment="Stretch">
+                        <Grid>
+                            <Image x:Name="VideoImage" Stretch="UniformToFill" Visibility="Collapsed"/>
+                            <StackPanel x:Name="NoVideoTip" HorizontalAlignment="Center"
+                                        VerticalAlignment="Center" Spacing="16">
+                                <FontIcon Glyph="&#xE7F4;" FontSize="48"
+                                          Foreground="#555555"
+                                          HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="VideoTipText" Text="等待无线图传建立..."
+                                           FontSize="13" Foreground="#888888"
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                            <Border x:Name="RecIndicator" Visibility="Collapsed"
+                                    CornerRadius="8" Padding="12,6" Margin="16"
+                                    Background="#99000000" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <Ellipse Width="7" Height="7" Fill="#FF3B30"/>
+                                    <TextBlock FontSize="11" FontWeight="SemiBold" Foreground="White">
+                                        <Run Text="REC "/><Run x:Name="RecTimerText" Text="00:00"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- 状态卡片 -->
+                    <Grid ColumnSpacing="10" RowSpacing="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" CornerRadius="10" Padding="14"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1">
+                            <StackPanel Spacing="4">
+                                <TextBlock x:Name="LblLink" Text="连接状态" FontSize="11"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBlock x:Name="TxtState" Text="未连接" FontSize="18" FontWeight="Bold"
+                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="1" CornerRadius="10" Padding="14"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1">
+                            <StackPanel Spacing="4">
+                                <TextBlock x:Name="LblFps" Text="实时帧率" FontSize="11"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBlock x:Name="TxtFps" Text="-- FPS" FontSize="18" FontWeight="Bold"
+                                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="2" CornerRadius="10" Padding="14"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1">
+                            <StackPanel Spacing="4">
+                                <TextBlock x:Name="LblTemp" Text="终端温度" FontSize="11"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBlock x:Name="TxtTemp" Text="-- ℃" FontSize="18" FontWeight="Bold"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="3" CornerRadius="10" Padding="14"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1">
+                            <StackPanel Spacing="4">
+                                <TextBlock x:Name="LblBright" Text="照明功率" FontSize="11"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBlock x:Name="TxtBright" Text="-- %" FontSize="18" FontWeight="Bold"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- 操作按钮 -->
+                    <Grid ColumnSpacing="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="1.2*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="BtnBeep" Grid.Column="0" Click="BtnBeep_Click" Height="44"
+                                CornerRadius="10" FontWeight="SemiBold" IsEnabled="False"
+                                HorizontalAlignment="Stretch">
+                            <TextBlock x:Name="BtnBeepText" Text="鸣笛"/>
+                        </Button>
+                        <Button x:Name="BtnScreenshot" Grid.Column="1" Click="BtnScreenshot_Click" Height="44"
+                                CornerRadius="10" FontWeight="SemiBold" IsEnabled="False"
+                                HorizontalAlignment="Stretch">
+                            <TextBlock x:Name="BtnSnapText" Text="快照"/>
+                        </Button>
+                        <Button x:Name="BtnRecord" Grid.Column="2" Click="BtnRecord_Click" Height="44"
+                                CornerRadius="10" FontWeight="SemiBold" IsEnabled="False"
+                                HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Ellipse Width="10" Height="10" Fill="#FF3B30"/>
+                                <TextBlock x:Name="LblRecord" Text="录制"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+
+                    <!-- 灯光控制 -->
+                    <Border CornerRadius="12" Padding="20"
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1">
+                        <StackPanel Spacing="12">
+                            <Grid>
+                                <TextBlock x:Name="SliderLedLabel" Text="灯光控制" FontSize="13" FontWeight="Medium"/>
+                                <TextBlock x:Name="SliderValDisplay" Text="0%" FontSize="13" FontWeight="Medium"
+                                           HorizontalAlignment="Right"/>
+                            </Grid>
+                            <Slider x:Name="SliderLed" Minimum="0" Maximum="100" Value="0"
+                                    IsEnabled="False" ValueChanged="SliderLed_ValueChanged"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 操控说明 -->
+                    <Border CornerRadius="12" Padding="20"
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1">
+                        <StackPanel Spacing="10">
+                            <TextBlock x:Name="GuideTitleText" Text="操控集群说明:" FontSize="14" FontWeight="SemiBold"/>
+                            <StackPanel Spacing="8">
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Width="28" Height="28" CornerRadius="6"
+                                            Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                            HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock Text="W" FontSize="12" FontWeight="Bold"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="1" x:Name="GuideMoveText"
+                                               Text="车身移动：W/S/A/D" FontSize="13"
+                                               VerticalAlignment="Center"/>
+                                </Grid>
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Width="28" Height="28" CornerRadius="6"
+                                            Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                            HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock Text="I" FontSize="12" FontWeight="Bold"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="1" x:Name="GuideServoText"
+                                               Text="精密云台：I (抬起) / K (降下)" FontSize="13"
+                                               VerticalAlignment="Center"/>
+                                </Grid>
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Width="28" Height="28" CornerRadius="6"
+                                            Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                            HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock Text="␣" FontSize="10" FontWeight="Bold"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Grid.Column="1" x:Name="GuideBeepText"
+                                               Text="应答模块：Space (短促鸣笛)" FontSize="13"
+                                               VerticalAlignment="Center"/>
+                                </Grid>
+                            </StackPanel>
+                            <TextBlock x:Name="GuideTipText" Text="提示：遥控前请确保窗口处于激活状态。"
+                                       FontSize="12" Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Window>
