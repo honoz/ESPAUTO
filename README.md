@@ -12,12 +12,13 @@
 | ![Web Mobile](Assets/web_mobile.png) | ![Arduino NESSO N1](Assets/nesso_n1.png) |
 
 ## 简介
-ESPAUTO 是一个基于低功耗蓝牙（BLE）的开源遥控小车项目。通过对 BLE 通信链路的优化，实现了实时的视频流传输与指令控制。项目包含 Android 端、Arduino 端及 Web 端三种控制方式，适合作为学习 BLE 图像传输与 ESP32 开发的参考。
+ESPAUTO 是一个基于低功耗蓝牙（BLE）的开源遥控小车项目。通过对 BLE 通信链路的优化，实现了实时的视频流传输与指令控制。项目包含 Android 端、Windows 端、Arduino 端及 Web 端四种控制方式，适合作为学习 BLE 图像传输与 ESP32 开发的参考。
 
 ## 核心特性
 - **通信协议：** 基于 ESP32-S3/C6 的 BLE 数据链路实现。
 - **多端控制：**
   - **Android:** 支持 Android 12+，采用 Kotlin 原生开发。
+  - **Windows:** 支持 Windows 10 19041+，采用 WinUI 3 + .NET 8 原生开发，Mica 材质界面。
   - **Arduino:** 提供基于 Arduino Nesso N1 的物理遥控器固件。
   - **Web:** 支持浏览器控制，提供基本的 Web 遥控界面。
 - **配置支持：** 内置中英文双语切换。
@@ -25,6 +26,7 @@ ESPAUTO 是一个基于低功耗蓝牙（BLE）的开源遥控小车项目。通
 
 ## 项目结构
 - `/Android/ESPAUTO`: Android 客户端工程目录。
+- `/Windows/ESPAUTO`: Windows 客户端工程目录。
 - `/Arduino`: ESP32 底层固件源码。
   - `/Car`: 小车端固件 (ESP32-S3 + OV5640)。
   - `/Remote`: 遥控器端固件 (Arduino Nesso N1 / ESP32-C6)。
@@ -42,6 +44,7 @@ ESPAUTO 是一个基于低功耗蓝牙（BLE）的开源遥控小车项目。通
 
 **客户端运行:**
 - **Android:** 使用 Android Studio 打开 `/Android/ESPAUTO` 工程进行编译及安装。
+- **Windows:** 使用 Visual Studio 或 `dotnet publish` 编译 `/Windows/ESPAUTO` 工程，生成 MSI 安装包。
 - **Web:**
   - **在线访问:** 点击 [访问 Web 在线客户端](https://honoz.github.io/ESPAUTO/Web/index.html) 即可直接连接使用。
   - **本地运行:** 在本地直接打开 `/Web/index.html` 即可使用。
