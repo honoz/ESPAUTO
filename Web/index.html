@@ -575,6 +575,78 @@
             .status-value { font-size: 14px; }
             .panel { padding: 14px; }
         }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 24px;
+        }
+
+        .modal-overlay.visible {
+            display: flex;
+        }
+
+        .modal-box {
+            background: var(--bg-surface-solid);
+            border-radius: var(--radius-card);
+            padding: 32px 28px 24px;
+            max-width: 380px;
+            width: 100%;
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.18);
+            text-align: center;
+        }
+
+        .modal-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--status-danger-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 18px;
+            color: var(--status-danger);
+        }
+
+        .modal-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-title);
+            margin: 0 0 10px 0;
+        }
+
+        .modal-message {
+            font-size: 14px;
+            color: var(--text-caption);
+            line-height: 1.7;
+            margin: 0 0 24px 0;
+            text-align: start;
+        }
+
+        .modal-btn {
+            font-family: inherit;
+            background: var(--brand-primary);
+            color: var(--text-on-primary);
+            border: none;
+            padding: 0 32px;
+            height: 44px;
+            border-radius: var(--radius-capsule);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: var(--transition-smooth);
+        }
+
+        .modal-btn:hover {
+            filter: brightness(1.08);
+        }
     </style>
 </head>
 <body>
@@ -708,6 +780,22 @@
 
 <canvas id="recordCanvas" style="display: none;"></canvas>
 
+<div id="bleNotSupportedModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+        </div>
+        <h3 class="modal-title" data-i18n="modalBleNotSupportTitle">浏览器不支持</h3>
+        <p class="modal-message" data-i18n="modalBleNotSupportMsg">当前浏览器不支持蓝牙功能，请改用 Chrome 或 Edge 浏览器打开本页面。</p>
+        <button class="modal-btn" id="btnModalClose" data-i18n="modalClose">确定</button>
+    </div>
+</div>
+
 <script>
     const i18nTokens = {
         'zh-CN': {
@@ -735,7 +823,10 @@
             g_move: "<b>车身移动</b>：W (前) / S (后) / A (左旋) / D (右旋)",
             g_servo: "<b>精密云台</b>：I (抬起) / K (降下)",
             g_beep: "<b>应答模块</b>：Space (短促鸣笛)",
-            guideTip: "提示：遥控前请点击网页任意空白处激活焦点。"
+            guideTip: "提示：遥控前请点击网页任意空白处激活焦点。",
+            modalBleNotSupportTitle: "浏览器不支持",
+            modalBleNotSupportMsg: "当前浏览器不支持蓝牙功能，请改用 Chrome 或 Edge 浏览器打开本页面。",
+            modalClose: "确定"
         },
         'en': {
             statusStandby: "DEVICE STANDBY",
@@ -762,7 +853,10 @@
             g_move: "<b>Chassis</b>: W (Fwd) / S (Bwd) / A (Left) / D (Right)",
             g_servo: "<b>Gimbal</b>: I (Tilt Up) / K (Tilt Down)",
             g_beep: "<b>Response Module</b>: Space (Short Honk)",
-            guideTip: "Tip: Click anywhere blank to focus keyboard control."
+            guideTip: "Tip: Click anywhere blank to focus keyboard control.",
+            modalBleNotSupportTitle: "Browser Not Supported",
+            modalBleNotSupportMsg: "Your browser does not support Bluetooth. Please open this page in Chrome or Edge instead.",
+            modalClose: "OK"
         }
     };
 
@@ -841,6 +935,15 @@
     const mBtnServoDown = document.getElementById('mBtnServoDown');
     const mBtnBeep = document.getElementById('mBtnBeep');
     const pcGuideCard = document.getElementById('pcGuideCard');
+    const bleNotSupportedModal = document.getElementById('bleNotSupportedModal');
+    const btnModalClose = document.getElementById('btnModalClose');
+
+    btnModalClose.addEventListener('click', () => {
+        bleNotSupportedModal.classList.remove('visible');
+    });
+    bleNotSupportedModal.addEventListener('click', (e) => {
+        if (e.target === bleNotSupportedModal) bleNotSupportedModal.classList.remove('visible');
+    });
 
     let isMobileMode = false;
 
@@ -1022,6 +1125,10 @@
     setInterval(processNextCmd, CMD_SEND_INTERVAL_MS);
 
     async function connectBle() {
+        if (!navigator.bluetooth) {
+            bleNotSupportedModal.classList.add('visible');
+            return;
+        }
         try {
             txtState.innerText = i18nTokens[currentLang]['statusSearching'];
             txtState.style.color = "#FF9F0A";
