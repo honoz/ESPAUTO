@@ -18,7 +18,7 @@ ESPAUTO is an open-source RC car project built on Bluetooth Low Energy (BLE). By
 - **Communication Protocol:** BLE data link optimized for ESP32-S3/C6 architectures.
 - **Multi-Terminal Control:**
   - **Android:** Native development using Kotlin, supporting Android 12+.
-  - **Windows:** Native development using WinUI 3 + .NET 8, supporting Windows 10 19041+, with Mica material UI.
+  - **Windows:** Native development using WinUI 3 + .NET 8, supporting Windows 10 19041+.
   - **Arduino:** Dedicated physical remote firmware based on the Arduino Nesso N1.
   - **Web:** Responsive control interface, accessible via standard web browsers.
 - **Internationalization:** Built-in support for both Chinese and English.
