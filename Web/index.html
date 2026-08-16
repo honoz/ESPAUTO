@@ -720,7 +720,7 @@
                 <div class="status-card">
                     <span class="status-label" data-i18n="lblLink">连接状态</span>
                     <span id="txtState" class="status-value"
-                          style="color: var(--status-danger); font-size: 14px;">OFFLINE</span>
+                          style="color: var(--status-danger); font-size: 14px;" data-i18n="statusOffline">OFFLINE</span>
                 </div>
                 <div class="status-card">
                     <span class="status-label" data-i18n="lblFps">实时帧率</span>
@@ -804,6 +804,8 @@
             statusLinking: "正在配对",
             statusActive: "系统就绪",
             statusError: "连接异常",
+            statusOnline: "已连接",
+            statusOffline: "未连接",
             videoTip: "等待无线图传建立...",
             btnConnect: "建立连接",
             btnDisconnect: "断开",
@@ -834,6 +836,8 @@
             statusLinking: "PAIRING",
             statusActive: "SYSTEM ACTIVE",
             statusError: "CONNECTION ERROR",
+            statusOnline: "ONLINE",
+            statusOffline: "OFFLINE",
             videoTip: "Establishing wireless video link...",
             btnConnect: "Connect",
             btnDisconnect: "Disconnect",
@@ -985,12 +989,15 @@
 
     function updateStateTextUI() {
         if(!bleDevice || !bleDevice.gatt.connected) {
-            if(txtState.innerText !== "SEARCHING" && txtState.innerText !== "PAIRING" && txtState.innerText !== "ERROR" && txtState.innerText !== "正在搜索" && txtState.innerText !== "正在配对" && txtState.innerText !== "连接异常") {
-                txtState.innerText = "OFFLINE";
+            const searching = i18nTokens[currentLang]['statusSearching'];
+            const linking = i18nTokens[currentLang]['statusLinking'];
+            const error = i18nTokens[currentLang]['statusError'];
+            if(txtState.innerText !== searching && txtState.innerText !== linking && txtState.innerText !== error) {
+                txtState.innerText = i18nTokens[currentLang]['statusOffline'];
                 txtState.style.color = "var(--status-danger)";
             }
         } else {
-            txtState.innerText = "ONLINE";
+            txtState.innerText = i18nTokens[currentLang]['statusOnline'];
             txtState.style.color = "var(--status-success)";
         }
     }
@@ -1171,7 +1178,7 @@
             } catch (e) {}
 
             if (controlCharacteristic) {
-                txtState.innerText = "ONLINE";
+                txtState.innerText = i18nTokens[currentLang]['statusOnline'];
                 txtState.style.color = "var(--status-success)";
                 document.getElementById('headerClock').innerText = i18nTokens[currentLang]['statusActive'];
                 toggleUiElements(true);
