@@ -10,10 +10,10 @@
         android:id="@android:id/icon"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:padding="4dp"
-        android:src="@drawable/ic_bluetooth"
         android:background="@drawable/bg_skeleton_round"
-        android:contentDescription="@null" />
+        android:contentDescription="@null"
+        android:padding="4dp"
+        android:src="@drawable/ic_bluetooth" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,8 +27,8 @@
             android:layout_height="wrap_content"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
-            tools:text="@string/device_name_placeholder"
-            tools:ignore="VisualLintSystemUi" />
+            tools:ignore="VisualLintSystemUi"
+            tools:text="@string/device_name_placeholder" />
 
         <TextView
             android:id="@android:id/text2"

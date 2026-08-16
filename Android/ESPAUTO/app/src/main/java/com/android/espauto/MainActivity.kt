@@ -33,7 +33,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.android.espauto.databinding.ActivityMainBinding
 import kotlin.math.abs
 
-class MainActivity : AppCompatActivity(), BleManager.BleCallback, VideoFrameParser.FrameParseListener {
+class MainActivity : AppCompatActivity(), BleManager.BleCallback,
+    VideoFrameParser.FrameParseListener {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var bleManager: BleManager
@@ -41,7 +42,8 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback, VideoFramePars
     private lateinit var videoRecorder: VideoRecorder
 
     private var targetDevice: BluetoothDevice? = null
-    @Volatile private var currentBitmapFrame: Bitmap? = null
+    @Volatile
+    private var currentBitmapFrame: Bitmap? = null
 
     private var isManualDisconnect = false
     private var reconnectCount = 0
@@ -82,10 +84,12 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback, VideoFramePars
             val rollNorm = (event.values[0] / GRAVITY).coerceIn(-1f, 1f)
 
             val speed = if (abs(pitchNorm) < GRAVITY_DEAD_ZONE) 0
-            else (pitchNorm * GRAVITY_MAX_SPEED).toInt().coerceIn(-GRAVITY_MAX_SPEED, GRAVITY_MAX_SPEED)
+            else (pitchNorm * GRAVITY_MAX_SPEED).toInt()
+                .coerceIn(-GRAVITY_MAX_SPEED, GRAVITY_MAX_SPEED)
 
             val steer = if (abs(rollNorm) < GRAVITY_DEAD_ZONE) 0
-            else (rollNorm * GRAVITY_MAX_STEER).toInt().coerceIn(-GRAVITY_MAX_STEER, GRAVITY_MAX_STEER)
+            else (rollNorm * GRAVITY_MAX_STEER).toInt()
+                .coerceIn(-GRAVITY_MAX_STEER, GRAVITY_MAX_STEER)
 
             bleManager.sendCarMoveCmd(speed, steer)
         }
@@ -116,7 +120,8 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback, VideoFramePars
         binding.rvScanDevices.layoutManager = LinearLayoutManager(this)
         binding.rvScanDevices.adapter = deviceListAdapter
 
-        val skeletonAnim = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.anim_skeleton_pulse)
+        val skeletonAnim =
+            android.view.animation.AnimationUtils.loadAnimation(this, R.anim.anim_skeleton_pulse)
         binding.llSkeletonContainer.startAnimation(skeletonAnim)
 
         binding.btnModeSwitch.setOnClickListener {
@@ -127,7 +132,11 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback, VideoFramePars
             isGravityMode = !isGravityMode
             if (isGravityMode) {
                 accelerometer?.let {
-                    sensorManager.registerListener(gravitySensorListener, it, SensorManager.SENSOR_DELAY_GAME)
+                    sensorManager.registerListener(
+                        gravitySensorListener,
+                        it,
+                        SensorManager.SENSOR_DELAY_GAME
+                    )
                 }
                 binding.btnModeSwitch.setImageResource(R.drawable.ic_gravity_on)
                 ToastUtil.show(this, getString(R.string.toast_gravity_on))
@@ -182,6 +191,7 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback, VideoFramePars
                 if (isGravityMode) return
                 bleManager.sendCarMoveCmd(y, -x)
             }
+
             override fun onStop() {
                 if (isGravityMode) return
                 servoHandler.removeCallbacksAndMessages(null)
@@ -194,7 +204,11 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback, VideoFramePars
         if (bleManager.hasPermissions()) {
             checkAndTriggerBluetooth()
         } else {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT), 1001)
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT),
+                1001
+            )
         }
     }
 
@@ -208,7 +222,10 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback, VideoFramePars
     }
 
     private fun autoConnectOrScan() {
-        val savedAddr = getSharedPreferences("ESPAUTO_CONFIG", MODE_PRIVATE).getString("saved_device_address", null)
+        val savedAddr = getSharedPreferences("ESPAUTO_CONFIG", MODE_PRIVATE).getString(
+            "saved_device_address",
+            null
+        )
         if (!savedAddr.isNullOrEmpty()) {
             try {
                 val dev = bleManager.bluetoothAdapter?.getRemoteDevice(savedAddr)
@@ -218,13 +235,17 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback, VideoFramePars
                     bleManager.connect(dev)
                     return
                 }
-            } catch (_: Exception) {}
+            } catch (_: Exception) {
+            }
         }
         startDeviceScan()
     }
 
     private fun startDeviceScan() {
+        if (currentUiState == UiState.SCANNING && bleManager.isScanning) return
+        val oldSize = scanDeviceList.size
         scanDeviceList.clear()
+        deviceListAdapter.notifyItemRangeRemoved(0, oldSize)
         binding.pbScanIndicator.visibility = View.VISIBLE
         binding.tvScanTip.text = getString(R.string.tip_scanning_device)
         binding.llSkeletonContainer.visibility = View.VISIBLE
@@ -242,7 +263,11 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback, VideoFramePars
         setUiState(UiState.IDLE, tip)
     }
 
-    override fun onConnectionStateChanged(isConnected: Boolean, isConnecting: Boolean, tip: String) {
+    override fun onConnectionStateChanged(
+        isConnected: Boolean,
+        isConnecting: Boolean,
+        tip: String
+    ) {
         if (isConnected) {
             isManualDisconnect = false
             reconnectCount = 0
@@ -275,7 +300,13 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback, VideoFramePars
             } else if (reconnectCount < maxReconnectTimes && targetDevice != null) {
                 reconnectCount++
                 setUiState(UiState.LOADING, getString(R.string.tip_reconnecting))
-                Handler(Looper.getMainLooper()).postDelayed({ targetDevice?.let { bleManager.connect(it) } }, 1500)
+                Handler(Looper.getMainLooper()).postDelayed({
+                    targetDevice?.let {
+                        bleManager.connect(
+                            it
+                        )
+                    }
+                }, 1500)
             } else {
                 setUiState(UiState.RECONNECT, getString(R.string.tip_reconnect_failed))
             }
@@ -295,7 +326,9 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback, VideoFramePars
 
     override fun onRssiUpdated(rssi: Int) {
         runOnUiThread {
-            val percent = when { rssi >= -50 -> 100; rssi <= -100 -> 0; else -> 100 + ((rssi + 50) * 2) }
+            val percent = when {
+                rssi >= -50 -> 100; rssi <= -100 -> 0; else -> 100 + ((rssi + 50) * 2)
+            }
             val icon = when {
                 rssi >= -50 -> R.drawable.ic_signal_4_bar
                 rssi >= -70 -> R.drawable.ic_signal_3_bar
@@ -312,6 +345,7 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback, VideoFramePars
 
     override fun onDeviceFound(device: BluetoothDevice) {
         runOnUiThread {
+            if (currentUiState != UiState.SCANNING) return@runOnUiThread
             binding.llSkeletonContainer.clearAnimation()
             binding.llSkeletonContainer.visibility = View.GONE
             binding.rvScanDevices.visibility = View.VISIBLE
@@ -334,9 +368,7 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback, VideoFramePars
 
     override fun onFrameParsed(bitmap: Bitmap, fps: Int) {
         synchronized(this) {
-            val old = currentBitmapFrame
             currentBitmapFrame = bitmap
-            if (old != null && !old.isRecycled) old.recycle()
         }
 
         if (videoRecorder.isRecording) {
@@ -346,7 +378,7 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback, VideoFramePars
         runOnUiThread {
             if (currentUiState == UiState.SCANNING) return@runOnUiThread
             if (bitmap.isRecycled) return@runOnUiThread
-            setUiState(UiState.NORMAL)
+            if (currentUiState != UiState.NORMAL) setUiState(UiState.NORMAL)
             binding.ivVideoDisplay.setImageBitmap(bitmap)
             binding.tvVideoFps.text = getString(R.string.format_video_fps, fps)
         }
@@ -386,8 +418,10 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback, VideoFramePars
             put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/ESPAUTO")
         }
         try {
-            val uri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cv) ?: return
-            contentResolver.openOutputStream(uri)?.use { copy.compress(Bitmap.CompressFormat.JPEG, 90, it) }
+            val uri =
+                contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cv) ?: return
+            contentResolver.openOutputStream(uri)
+                ?.use { copy.compress(Bitmap.CompressFormat.JPEG, 90, it) }
             ToastUtil.show(this, getString(R.string.toast_screenshot_success))
         } catch (_: Exception) {
             ToastUtil.show(this, getString(R.string.toast_screenshot_failed))
@@ -403,12 +437,18 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback, VideoFramePars
             binding.llScanPanel.visibility = if (isScanning) View.VISIBLE else View.GONE
             binding.flIconContainer.visibility = if (isScanning) View.GONE else View.VISIBLE
             binding.tvLoadingTip.visibility = if (isScanning) View.GONE else View.VISIBLE
-            binding.rlLoadingContainer.visibility = if (state != UiState.NORMAL) View.VISIBLE else View.GONE
-            binding.llLiveStatusLabel.visibility = if (state == UiState.NORMAL) View.VISIBLE else View.GONE
-            binding.llDeviceInfoPanel.visibility = if (state == UiState.NORMAL) View.VISIBLE else View.GONE
-            binding.ivNoDeviceIcon.visibility = if (state == UiState.IDLE) View.VISIBLE else View.GONE
-            binding.ivReconnectIcon.visibility = if (state == UiState.RECONNECT) View.VISIBLE else View.GONE
-            binding.pbLoadingIndicator.visibility = if (state == UiState.LOADING) View.VISIBLE else View.GONE
+            binding.rlLoadingContainer.visibility =
+                if (state != UiState.NORMAL) View.VISIBLE else View.GONE
+            binding.llLiveStatusLabel.visibility =
+                if (state == UiState.NORMAL) View.VISIBLE else View.GONE
+            binding.llDeviceInfoPanel.visibility =
+                if (state == UiState.NORMAL) View.VISIBLE else View.GONE
+            binding.ivNoDeviceIcon.visibility =
+                if (state == UiState.IDLE) View.VISIBLE else View.GONE
+            binding.ivReconnectIcon.visibility =
+                if (state == UiState.RECONNECT) View.VISIBLE else View.GONE
+            binding.pbLoadingIndicator.visibility =
+                if (state == UiState.LOADING) View.VISIBLE else View.GONE
             if (!isScanning) binding.tvLoadingTip.text = tip
 
             binding.btnScanDevice.setImageResource(
@@ -421,7 +461,6 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback, VideoFramePars
         frameParser.clearBuffer()
         runOnUiThread { binding.ivVideoDisplay.setImageDrawable(null) }
         synchronized(this) {
-            currentBitmapFrame?.recycle()
             currentBitmapFrame = null
         }
     }
@@ -441,7 +480,11 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback, VideoFramePars
         }
 
         binding.btnServoUp.setOnClickListener { bleManager.sendSimpleControlCmd(BleManager.CMD_SERVO_UP) }
-        binding.btnServoUp.setOnLongClickListener { isServoUpLongPress = true; servoHandler.post(loopRun); true }
+        binding.btnServoUp.setOnLongClickListener {
+            isServoUpLongPress = true; servoHandler.post(
+            loopRun
+        ); true
+        }
         binding.btnServoUp.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_UP || event.action == MotionEvent.ACTION_CANCEL) {
                 isServoUpLongPress = false; servoHandler.removeCallbacksAndMessages(null)
@@ -450,7 +493,9 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback, VideoFramePars
         }
 
         binding.btnServoDown.setOnClickListener { bleManager.sendSimpleControlCmd(BleManager.CMD_SERVO_DOWN) }
-        binding.btnServoDown.setOnLongClickListener { isServoDownLongPress = true; servoHandler.post(loopRun); true }
+        binding.btnServoDown.setOnLongClickListener {
+            isServoDownLongPress = true; servoHandler.post(loopRun); true
+        }
         binding.btnServoDown.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_UP || event.action == MotionEvent.ACTION_CANCEL) {
                 isServoDownLongPress = false; servoHandler.removeCallbacksAndMessages(null)
@@ -486,8 +531,11 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback, VideoFramePars
 
     private inner class DeviceListAdapter : RecyclerView.Adapter<DeviceViewHolder>() {
 
-        override fun onCreateViewHolder(p: ViewGroup, t: Int) = DeviceViewHolder(layoutInflater.inflate(R.layout.device_list_item, p, false))
+        override fun onCreateViewHolder(p: ViewGroup, t: Int) =
+            DeviceViewHolder(layoutInflater.inflate(R.layout.device_list_item, p, false))
+
         override fun getItemCount() = scanDeviceList.size
+
         @SuppressLint("MissingPermission")
         override fun onBindViewHolder(h: DeviceViewHolder, p: Int) {
             val dev = scanDeviceList[p]
@@ -499,7 +547,13 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback, VideoFramePars
                     remove("saved_device_address")
                 }
                 targetDevice = dev
-                setUiState(UiState.LOADING, getString(R.string.tip_connecting_target_device, dev.name ?: getString(R.string.device_unknown)))
+                setUiState(
+                    UiState.LOADING,
+                    getString(
+                        R.string.tip_connecting_target_device,
+                        dev.name ?: getString(R.string.device_unknown)
+                    )
+                )
                 bleManager.connect(dev)
             }
         }
@@ -527,11 +581,15 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback, VideoFramePars
             if (intent?.action == BluetoothAdapter.ACTION_STATE_CHANGED) {
                 when (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)) {
                     BluetoothAdapter.STATE_OFF -> {
-                        ToastUtil.show(this@MainActivity, getString(R.string.toast_bluetooth_turned_off))
+                        ToastUtil.show(
+                            this@MainActivity,
+                            getString(R.string.toast_bluetooth_turned_off)
+                        )
                         isManualDisconnect = true
                         bleManager.disconnect()
                         setUiState(UiState.IDLE, getString(R.string.tip_bluetooth_off))
                     }
+
                     BluetoothAdapter.STATE_ON -> executeBluetoothFlow()
                 }
             }
@@ -554,7 +612,6 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback, VideoFramePars
         bleManager.disconnect()
 
         synchronized(this) {
-            currentBitmapFrame?.recycle()
             currentBitmapFrame = null
         }
     }

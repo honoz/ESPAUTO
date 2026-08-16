@@ -28,8 +28,8 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="@string/app_name"
-            android:textSize="23sp"
             android:textColor="@color/md_theme_onSurface"
+            android:textSize="23sp"
             tools:ignore="VisualLintSystemUi" />
 
         <ImageButton
@@ -80,7 +80,6 @@
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
             android:background="@drawable/bg_status"
-            app:drawableStartCompat="@drawable/ic_live"
             android:drawablePadding="5dp"
             android:gravity="center"
             android:paddingHorizontal="5dp"
@@ -88,7 +87,8 @@
             android:text="@string/status_live"
             android:textColor="@android:color/white"
             android:textSize="12sp"
-            android:visibility="gone" />
+            android:visibility="gone"
+            app:drawableStartCompat="@drawable/ic_live" />
 
         <LinearLayout
             android:id="@+id/ll_device_info_panel"
@@ -96,39 +96,45 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginTop="10dp"
-            android:gravity="center_vertical"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/bg_status"
+            android:gravity="center"
             android:orientation="horizontal"
+            android:paddingHorizontal="5dp"
+            android:paddingVertical="2dp"
             android:visibility="gone"
             tools:ignore="UseCompoundDrawables">
 
             <TextView
                 android:id="@+id/tv_signal_strength"
-                android:layout_width="52dp"
+                android:layout_width="47dp"
                 android:layout_height="wrap_content"
-                app:drawableStartCompat="@drawable/ic_signal_0_bar"
-                android:drawablePadding="3dp"
+                android:gravity="end"
                 android:text="@string/placeholder_signal_strength"
-                android:textColor="@android:color/white" />
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                app:drawableStartCompat="@drawable/ic_signal_0_bar" />
 
             <TextView
                 android:id="@+id/tv_temperature"
-                android:layout_width="52dp"
+                android:layout_width="49dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="2dp"
-                app:drawableStartCompat="@drawable/ic_thermometer"
-                android:drawablePadding="3dp"
+                android:layout_marginEnd="2dp"
+                android:gravity="end"
                 android:text="@string/placeholder_temperature"
-                android:textColor="@android:color/white" />
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                app:drawableStartCompat="@drawable/ic_thermometer" />
 
             <TextView
                 android:id="@+id/tv_video_fps"
-                android:layout_width="66dp"
+                android:layout_width="59dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="3dp"
-                app:drawableStartCompat="@drawable/ic_fps"
-                android:drawablePadding="3dp"
+                android:gravity="end"
                 android:text="@string/placeholder_video_fps"
-                android:textColor="@android:color/white" />
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                app:drawableStartCompat="@drawable/ic_fps" />
         </LinearLayout>
 
         <RelativeLayout
@@ -225,8 +231,8 @@
                         android:id="@+id/rv_scan_devices"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:paddingHorizontal="5dp"
-                        android:clipToPadding="false" />
+                        android:clipToPadding="false"
+                        android:paddingHorizontal="5dp" />
 
                     <LinearLayout
                         android:id="@+id/ll_skeleton_container"

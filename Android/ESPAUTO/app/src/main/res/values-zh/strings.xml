@@ -34,7 +34,7 @@
     <string name="tip_scan_complete">选择设备进行连接</string>
     <string name="format_temperature">%1$d℃</string>
     <string name="format_signal_strength">%1$d%%</string>
-    <string name="format_video_fps">%1$d FPS</string>
+    <string name="format_video_fps">%1$dFPS</string>
     <string name="placeholder_signal_strength">---%</string>
     <string name="placeholder_temperature">---℃</string>
     <string name="placeholder_video_fps">---FPS</string>

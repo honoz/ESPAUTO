@@ -79,7 +79,7 @@ class VideoFrameParser(private val listener: FrameParseListener) {
             if (jpeg[0] != 0xFF.toByte() || jpeg[1] != 0xD8.toByte()) return
 
             val options = BitmapFactory.Options().apply {
-                inPreferredConfig = Bitmap.Config.ARGB_8888
+                inPreferredConfig = Bitmap.Config.RGB_565
                 inMutable = true
             }
             val bmp = BitmapFactory.decodeByteArray(jpeg, 0, jpeg.size, options) ?: return

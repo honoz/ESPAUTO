@@ -61,7 +61,12 @@ class TouchPadView @JvmOverloads constructor(
         centerY = h / 2f
         baseRadius = minOf(w, h) / 2f * 0.8f
         clipPath.reset()
-        clipPath.addRoundRect(RectF(0f, 0f, w.toFloat(), h.toFloat()), cornerRadius, cornerRadius, Path.Direction.CW)
+        clipPath.addRoundRect(
+            RectF(0f, 0f, w.toFloat(), h.toFloat()),
+            cornerRadius,
+            cornerRadius,
+            Path.Direction.CW
+        )
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -70,18 +75,18 @@ class TouchPadView @JvmOverloads constructor(
                 touchX = event.x
                 touchY = event.y
                 isTouching = true
-                invalidate() 
-                
+                invalidate()
+
                 var dx = event.x - centerX
                 var dy = event.y - centerY
                 val dist = sqrt(dx * dx + dy * dy)
-                
+
                 if (dist > baseRadius) {
                     val angle = atan2(dy, dx)
                     dx = cos(angle) * baseRadius
                     dy = sin(angle) * baseRadius
                 }
-                
+
                 val x = (dx / baseRadius * 100).toInt()
                 val y = (dy / baseRadius * 100).toInt()
                 listener?.onMove(x, y)
@@ -89,7 +94,7 @@ class TouchPadView @JvmOverloads constructor(
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 isTouching = false
-                invalidate() 
+                invalidate()
                 listener?.onStop()
                 if (event.action == MotionEvent.ACTION_UP) performClick()
             }
@@ -102,7 +107,7 @@ class TouchPadView @JvmOverloads constructor(
         listener?.onStop()
         return true
     }
-    
+
     override fun dispatchDraw(canvas: Canvas) {
         canvas.withClip(clipPath) {
             super.dispatchDraw(canvas)

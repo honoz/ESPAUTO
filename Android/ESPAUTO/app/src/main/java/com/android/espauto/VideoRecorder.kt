@@ -36,12 +36,16 @@ class VideoRecorder(private val context: Context) {
         val height = sampleFrame.height
 
         try {
-            val format = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height).apply {
-                setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible)
-                setInteger(MediaFormat.KEY_BIT_RATE, 800000)
-                setInteger(MediaFormat.KEY_FRAME_RATE, videoFrameRate)
-                setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, iFrameInterval)
-            }
+            val format =
+                MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height).apply {
+                    setInteger(
+                        MediaFormat.KEY_COLOR_FORMAT,
+                        MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible
+                    )
+                    setInteger(MediaFormat.KEY_BIT_RATE, 800000)
+                    setInteger(MediaFormat.KEY_FRAME_RATE, videoFrameRate)
+                    setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, iFrameInterval)
+                }
 
             videoEncoder = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC).apply {
                 configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
@@ -54,10 +58,16 @@ class VideoRecorder(private val context: Context) {
                 put(MediaStore.Video.Media.RELATIVE_PATH, "DCIM/ESPAUTO")
             }
 
-            val uri = context.contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValue) ?: return false
+            val uri = context.contentResolver.insert(
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                contentValue
+            ) ?: return false
             videoFilePfd = context.contentResolver.openFileDescriptor(uri, "w") ?: return false
 
-            mediaMuxer = MediaMuxer(videoFilePfd!!.fileDescriptor, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+            mediaMuxer = MediaMuxer(
+                videoFilePfd!!.fileDescriptor,
+                MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4
+            )
             bitmapEncodeQueue.clear()
             isRecording = true
             muxerStartSuccess = false
@@ -88,7 +98,8 @@ class VideoRecorder(private val context: Context) {
         try {
             recordWorkThread?.interrupt()
             recordWorkThread?.join(1500)
-        } catch (_: Exception) {}
+        } catch (_: Exception) {
+        }
 
         while (bitmapEncodeQueue.isNotEmpty()) {
             bitmapEncodeQueue.poll()?.recycle()
@@ -121,7 +132,9 @@ class VideoRecorder(private val context: Context) {
                 while (isRecording || bitmapEncodeQueue.isNotEmpty()) {
                     val bmp = try {
                         bitmapEncodeQueue.poll(100, TimeUnit.MILLISECONDS) ?: continue
-                    } catch (_: InterruptedException) { break }
+                    } catch (_: InterruptedException) {
+                        break
+                    }
 
                     if (bmp.isRecycled) continue
                     val timeUs = System.nanoTime() / 1000
@@ -153,7 +166,9 @@ class VideoRecorder(private val context: Context) {
                     }
                     bmp.recycle()
                 }
-            } catch (e: Exception) { e.printStackTrace() }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
         recordWorkThread?.start()
     }

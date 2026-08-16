@@ -54,7 +54,8 @@ class BleManager(private val context: Context, private val callback: BleCallback
         const val CMD_CAR_MOVE = 0x15
     }
 
-    private val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+    private val bluetoothManager =
+        context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     val bluetoothAdapter: BluetoothAdapter? = bluetoothManager.adapter
     private var bleScanner: BluetoothLeScanner? = null
     private var bluetoothGatt: BluetoothGatt? = null
@@ -80,8 +81,14 @@ class BleManager(private val context: Context, private val callback: BleCallback
     private val statusReadPeriodMs = 5000L
 
     fun hasPermissions(): Boolean {
-        return ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+        return ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.BLUETOOTH_SCAN
+        ) == PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.BLUETOOTH_CONNECT
+                ) == PackageManager.PERMISSION_GRANTED
     }
 
     fun startScan() {
@@ -93,7 +100,8 @@ class BleManager(private val context: Context, private val callback: BleCallback
         val filter = ScanFilter.Builder()
             .setManufacturerData(manufacturerCompanyId, byteArrayOf(), byteArrayOf())
             .build()
-        val settings = ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build()
+        val settings =
+            ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build()
         bleScanner?.startScan(listOf(filter), settings, scanCallback)
         android.util.Log.d("BleManager", "startScan called, scanner=${bleScanner != null}")
         bleHandler.postDelayed({ stopScan(cancel = false) }, 5000)
@@ -101,7 +109,10 @@ class BleManager(private val context: Context, private val callback: BleCallback
 
     fun stopScan(cancel: Boolean = true) {
         if (!hasPermissions() || !isScanning) return
-        try { bleScanner?.stopScan(scanCallback) } catch (_: Exception) {}
+        try {
+            bleScanner?.stopScan(scanCallback)
+        } catch (_: Exception) {
+        }
         isScanning = false
         if (cancel) {
             bleHandler.removeCallbacksAndMessages(null)
@@ -128,7 +139,8 @@ class BleManager(private val context: Context, private val callback: BleCallback
         if (!hasPermissions() || isConnecting || isConnected) return
         isConnecting = true
         closeGatt()
-        bluetoothGatt = device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
+        bluetoothGatt =
+            device.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
     }
 
     fun disconnect() {
@@ -140,15 +152,35 @@ class BleManager(private val context: Context, private val callback: BleCallback
     }
 
     fun closeGatt() {
-        try { bluetoothGatt?.close() } catch (_: Exception) {} finally { bluetoothGatt = null }
+        try {
+            bluetoothGatt?.close()
+        } catch (_: Exception) {
+        } finally {
+            bluetoothGatt = null
+        }
     }
 
     fun sendCarMoveCmd(speed: Int, steer: Int) {
-        addCmdToQueue(byteArrayOf(cmdFrameHead[0], cmdFrameHead[1], CMD_CAR_MOVE.toByte(), speed.toByte(), steer.toByte()))
+        addCmdToQueue(
+            byteArrayOf(
+                cmdFrameHead[0],
+                cmdFrameHead[1],
+                CMD_CAR_MOVE.toByte(),
+                speed.toByte(),
+                steer.toByte()
+            )
+        )
     }
 
     fun sendLedBrightCmd(bright: Int) {
-        addCmdToQueue(byteArrayOf(cmdFrameHead[0], cmdFrameHead[1], CMD_LED_BRIGHTNESS.toByte(), bright.toByte()))
+        addCmdToQueue(
+            byteArrayOf(
+                cmdFrameHead[0],
+                cmdFrameHead[1],
+                CMD_LED_BRIGHTNESS.toByte(),
+                bright.toByte()
+            )
+        )
     }
 
     fun sendSimpleControlCmd(cmdCode: Int) {
@@ -160,7 +192,11 @@ class BleManager(private val context: Context, private val callback: BleCallback
         val stopCmd = byteArrayOf(cmdFrameHead[0], cmdFrameHead[1], CMD_CAR_MOVE.toByte(), 0, 0)
         controlCharacteristic?.let { char ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                bluetoothGatt?.writeCharacteristic(char, stopCmd, BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE)
+                bluetoothGatt?.writeCharacteristic(
+                    char,
+                    stopCmd,
+                    BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+                )
             } else {
                 @Suppress("DEPRECATION")
                 char.value = stopCmd
@@ -196,7 +232,11 @@ class BleManager(private val context: Context, private val callback: BleCallback
         val char = controlCharacteristic ?: return
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                gatt.writeCharacteristic(char, data, BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE)
+                gatt.writeCharacteristic(
+                    char,
+                    data,
+                    BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+                )
             } else {
                 @Suppress("DEPRECATION")
                 char.value = data
@@ -205,7 +245,8 @@ class BleManager(private val context: Context, private val callback: BleCallback
                 @Suppress("DEPRECATION")
                 gatt.writeCharacteristic(char)
             }
-        } catch (_: Exception) {}
+        } catch (_: Exception) {
+        }
     }
 
     private val gattCallback = object : BluetoothGattCallback() {
@@ -213,8 +254,16 @@ class BleManager(private val context: Context, private val callback: BleCallback
             isConnecting = false
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 isConnected = true
-                callback.onConnectionStateChanged(isConnected = true, isConnecting = false, tip = context.getString(R.string.ble_tip_connect_success))
-                gatt?.setPreferredPhy(BluetoothDevice.PHY_LE_2M_MASK, BluetoothDevice.PHY_LE_2M_MASK, BluetoothDevice.PHY_OPTION_NO_PREFERRED)
+                callback.onConnectionStateChanged(
+                    isConnected = true,
+                    isConnecting = false,
+                    tip = context.getString(R.string.ble_tip_connect_success)
+                )
+                gatt?.setPreferredPhy(
+                    BluetoothDevice.PHY_LE_2M_MASK,
+                    BluetoothDevice.PHY_LE_2M_MASK,
+                    BluetoothDevice.PHY_OPTION_NO_PREFERRED
+                )
                 gatt?.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH)
                 gatt?.discoverServices()
                 startReadRssiLoop()
@@ -224,7 +273,11 @@ class BleManager(private val context: Context, private val callback: BleCallback
                 videoCharacteristic = null
                 deviceStatusCharacteristic = null
                 closeGatt()
-                callback.onConnectionStateChanged(isConnected = false, isConnecting = false, tip = context.getString(R.string.ble_tip_disconnected))
+                callback.onConnectionStateChanged(
+                    isConnected = false,
+                    isConnecting = false,
+                    tip = context.getString(R.string.ble_tip_disconnected)
+                )
             }
         }
 
@@ -240,27 +293,42 @@ class BleManager(private val context: Context, private val callback: BleCallback
         override fun onMtuChanged(gatt: BluetoothGatt?, mtu: Int, status: Int) {
             openVideoNotify(gatt)
             if (deviceStatusCharacteristic != null) {
-                bleHandler.postDelayed({ bluetoothGatt?.readCharacteristic(deviceStatusCharacteristic) }, 200)
+                bleHandler.postDelayed({
+                    bluetoothGatt?.readCharacteristic(
+                        deviceStatusCharacteristic
+                    )
+                }, 200)
                 startReadDeviceStatusLoop()
             }
         }
 
         @Suppress("OVERRIDE_DEPRECATION")
-        override fun onCharacteristicChanged(gatt: BluetoothGatt?, c: BluetoothGattCharacteristic?) {
+        override fun onCharacteristicChanged(
+            gatt: BluetoothGatt?,
+            c: BluetoothGattCharacteristic?
+        ) {
             if (c?.uuid == videoCharUuid) {
                 @Suppress("DEPRECATION")
                 c.value?.let { callback.onVideoDataReceived(it.copyOf(it.size)) }
             }
         }
 
-        override fun onCharacteristicChanged(gatt: BluetoothGatt, c: BluetoothGattCharacteristic, value: ByteArray) {
+        override fun onCharacteristicChanged(
+            gatt: BluetoothGatt,
+            c: BluetoothGattCharacteristic,
+            value: ByteArray
+        ) {
             if (c.uuid == videoCharUuid) {
                 callback.onVideoDataReceived(value.copyOf(value.size))
             }
         }
 
         @Suppress("OVERRIDE_DEPRECATION")
-        override fun onCharacteristicRead(gatt: BluetoothGatt?, c: BluetoothGattCharacteristic?, status: Int) {
+        override fun onCharacteristicRead(
+            gatt: BluetoothGatt?,
+            c: BluetoothGattCharacteristic?,
+            status: Int
+        ) {
             if (status == BluetoothGatt.GATT_SUCCESS && c?.uuid == statusCharUuid) {
                 @Suppress("DEPRECATION")
                 val data = c.value ?: return
@@ -272,7 +340,12 @@ class BleManager(private val context: Context, private val callback: BleCallback
             }
         }
 
-        override fun onCharacteristicRead(gatt: BluetoothGatt, c: BluetoothGattCharacteristic, value: ByteArray, status: Int) {
+        override fun onCharacteristicRead(
+            gatt: BluetoothGatt,
+            c: BluetoothGattCharacteristic,
+            value: ByteArray,
+            status: Int
+        ) {
             if (status == BluetoothGatt.GATT_SUCCESS && c.uuid == statusCharUuid) {
                 if (value.isNotEmpty()) {
                     val bright = value[0].toInt() and 0xFF
@@ -300,12 +373,16 @@ class BleManager(private val context: Context, private val callback: BleCallback
                 @Suppress("DEPRECATION")
                 gatt?.writeDescriptor(desc)
             }
-        } catch (_: Exception) {}
+        } catch (_: Exception) {
+        }
     }
 
     private fun startReadRssiLoop() {
         if (!isConnected || bluetoothGatt == null) return
-        try { bluetoothGatt?.readRemoteRssi() } catch (_: Exception) {}
+        try {
+            bluetoothGatt?.readRemoteRssi()
+        } catch (_: Exception) {
+        }
         bleHandler.postDelayed({ startReadRssiLoop() }, rssiReadIntervalMs)
     }
 
