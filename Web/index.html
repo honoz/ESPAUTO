@@ -1093,13 +1093,14 @@
             const dataView = event.target.value;
             if (!dataView || dataView.byteLength < 1) return;
 
-            const bright = dataView.getUint8(0);
-            txtBright.innerText = bright + "%";
+            const rawBright = dataView.getUint8(0);
+            const brightPercent = Math.round((rawBright / 255) * 100);
+            txtBright.innerText = brightPercent + "%";
 
             if (!isFirstStatusReceived) {
-                sliderLed.value = bright;
-                sliderValDisplay.innerText = bright + "%";
-                updateSliderUI(bright);
+                sliderLed.value = brightPercent;
+                sliderValDisplay.innerText = brightPercent + "%";
+                updateSliderUI(brightPercent);
                 isFirstStatusReceived = true;
             }
 
@@ -1131,7 +1132,10 @@
     }
 
     function sendCarMoveCmd(speed, steer) { addCmdToQueue([0xAA, 0xFF, CMD_CAR_MOVE, speed & 0xFF, steer & 0xFF]); }
-    function sendLedBrightCmd(bright) { addCmdToQueue([0xAA, 0xFF, CMD_LED_BRIGHTNESS, bright & 0xFF]); }
+    function sendLedBrightCmd(bright) {
+        const rawBright = Math.round((bright / 100) * 255);
+        addCmdToQueue([0xAA, 0xFF, CMD_LED_BRIGHTNESS, rawBright & 0xFF]);
+    }
     function sendSimpleControlCmd(cmdCode) { addCmdToQueue([0xAA, 0xFF, cmdCode]); }
 
     function forceStopCar() {
