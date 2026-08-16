@@ -1,3 +1,9 @@
+/*
+ESPAUTO
+Copyright (c) 2026 honoz
+Licensed under the MIT License.
+*/
+
 package com.android.espauto
 
 import android.content.Context
@@ -25,6 +31,12 @@ class TouchPadView @JvmOverloads constructor(
     }
 
     var listener: OnTouchPadMoveListener? = null
+
+    fun resetTouchState() {
+        isTouching = false
+        listener?.onStop()
+        invalidate()
+    }
 
     private var centerX = 0f
     private var centerY = 0f
@@ -70,6 +82,7 @@ class TouchPadView @JvmOverloads constructor(
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (!isEnabled) return false
         when (event.action) {
             MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
                 touchX = event.x
@@ -112,7 +125,7 @@ class TouchPadView @JvmOverloads constructor(
         canvas.withClip(clipPath) {
             super.dispatchDraw(canvas)
 
-            if (isTouching) {
+            if (isTouching && isEnabled) {
                 canvas.drawCircle(touchX, touchY, touchPointRadius, touchPaint)
             }
         }

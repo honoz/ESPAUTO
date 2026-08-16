@@ -260,6 +260,7 @@
     </FrameLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_middle_button_bar"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginVertical="15dp"

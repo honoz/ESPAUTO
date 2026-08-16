@@ -1,3 +1,9 @@
+/*
+ESPAUTO
+Copyright (c) 2026 honoz
+Licensed under the MIT License.
+*/
+
 package com.android.espauto
 
 import android.Manifest
@@ -123,6 +129,8 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback,
         val skeletonAnim =
             android.view.animation.AnimationUtils.loadAnimation(this, R.anim.anim_skeleton_pulse)
         binding.llSkeletonContainer.startAnimation(skeletonAnim)
+
+        binding.sliderLedBrightness.isEnabled = false
 
         binding.btnModeSwitch.setOnClickListener {
             if (!bleManager.isConnected) {
@@ -268,6 +276,9 @@ class MainActivity : AppCompatActivity(), BleManager.BleCallback,
         isConnecting: Boolean,
         tip: String
     ) {
+        runOnUiThread {
+            binding.sliderLedBrightness.isEnabled = isConnected
+        }
         if (isConnected) {
             isManualDisconnect = false
             reconnectCount = 0

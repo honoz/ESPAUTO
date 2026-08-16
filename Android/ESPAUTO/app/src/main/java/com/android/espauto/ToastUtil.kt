@@ -1,3 +1,9 @@
+/*
+ESPAUTO
+Copyright (c) 2026 honoz
+Licensed under the MIT License.
+*/
+
 package com.android.espauto
 
 import android.content.Context
