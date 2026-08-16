@@ -1,14 +1,20 @@
+/*
+ESPAUTO
+Copyright (c) 2026 honoz
+Licensed under the MIT License.
+*/
+
 #include <M5Unified.h>
 #include <NimBLEDevice.h>
 #include <Preferences.h>
-// ======================== 设备标识 ========================
+
 const char* BLE_DEVICE_NAME = "ARDUINO NESSO N1";
 #define MANUFACTURER_COMPANY_ID 0xE5E5
 #define MANUFACTURER_PRODUCT_ID 0x01
 #define SERVICE_UUID "0000ffe0-0000-1000-8000-00805f9b34fb"
 #define CHARACTERISTIC_VIDEO_UUID "0000ffe1-0000-1000-8000-00805f9b34fb"
 #define CHARACTERISTIC_CTRL_UUID "0000ffe2-0000-1000-8000-00805f9b34fb"
-// ======================== 视频双缓冲区 ========================
+
 #define BUF_SIZE 16384 
 uint8_t jpegBufA[BUF_SIZE];
 uint8_t jpegBufB[BUF_SIZE];
@@ -19,11 +25,11 @@ volatile uint16_t recvCnt = 0;
 volatile uint16_t readyFrameLen = 0;
 volatile bool frameReady = false;
 portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
-// ======================== BLE 对象 ========================
+
 NimBLEClient* pClient = nullptr;
 NimBLERemoteCharacteristic* pVideoChar = nullptr;
 NimBLERemoteCharacteristic* pCtrlChar = nullptr;
-// ======================== 状态机 ========================
+
 enum SystemState { STATE_BOOT,
                    STATE_AUTO_CONNECT,
                    STATE_SCANNING,
@@ -33,7 +39,7 @@ enum SystemState { STATE_BOOT,
                    STATE_RECONNECTING,
                    STATE_OFFLINE };
 SystemState sysState = STATE_BOOT;
-// ======================== 设备发现 ========================
+
 #define MAX_DEVICES 8
 struct DeviceInfo {
   std::string name;
@@ -43,23 +49,23 @@ DeviceInfo foundDevices[MAX_DEVICES];
 int deviceCount = 0;
 int scrollOffset = 0;
 int selectedDevice = -1;
-// ======================== NVS 持久化 ========================
+
 Preferences prefs;
 String savedAddrStr = "";
 bool hasSavedDevice = false;
-// ======================== 连接状态 ========================
+
 volatile bool connected = false;
 volatile bool needReconnect = false;
 #define MAX_RECONNECT_TIMES 5
 int reconnectCount = 0;
 bool deviceOffline = false;
 bool ledState = false;
-// ======================== 摇杆 / IMU ========================
+
 int8_t lastX = 0;
 int8_t lastY = 0;
 uint32_t lastImuSendTime = 0;
 #define IMU_SEND_INTERVAL 30
-// ======================== 触摸：云台控制 ========================
+
 #define FILTER_SIZE 3 
 int16_t deltaYBuffer[FILTER_SIZE] = { 0 };
 uint8_t filterIndex = 0;
@@ -69,14 +75,14 @@ const uint32_t COOL_MS = 60;
 uint32_t lastSendTime = 0;
 bool isTouching = false;
 int16_t lastTouchY = 0;
-// ======================== 触摸：点击检测 ========================
+
 uint32_t touchStartTime = 0;
 int16_t touchStartX = 0;
 int16_t touchStartY = 0;
 bool touchHasMoved = false;
 const uint32_t TAP_DURATION_MS = 300;
 const int16_t TAP_DRIFT = 15;
-// ======================== 触摸：列表交互 ========================
+
 uint32_t lastTouchTime = 0;
 int16_t listTouchStartY = 0;
 int16_t listTouchStartX = 0;
@@ -87,10 +93,10 @@ const uint16_t TAP_THRESHOLD = 10;
 const int ITEM_HEIGHT = 35;
 const int LIST_TOP = 38;
 const int MAX_VISIBLE = 3;
-// ======================== 扫描参数 ========================
+
 uint32_t scanStartTime = 0;
 #define SCAN_DURATION_MS 5000
-// ======================== UI 配色 ========================
+
 #define UI_BG_DARK 0x18C3
 #define UI_BG_BLACK 0x0000
 #define UI_CYAN 0x07FF
@@ -99,11 +105,11 @@ uint32_t scanStartTime = 0;
 #define UI_WHITE 0xFFFF
 #define UI_LIGHT_GRAY 0xD6BA
 #define UI_DIM_GRAY 0x4228
-// ======================== UI 运行时 ========================
+
 uint32_t offlineStartTime = 0;
 M5Canvas canvas(&M5.Lcd);
 bool uiDirty = true;
-// ======================== 前置声明 ========================
+
 void sendJoystick(int8_t x, int8_t y);
 void sendServoInc();
 void sendServoDec();
@@ -117,7 +123,7 @@ void clearDeviceNVS();
 void drawOSDText(const char* text, int x, int y, uint16_t color, uint8_t size = 1, uint8_t datum = middle_center);
 void drawHUDPopup(const char* title, const char* sub, uint16_t color);
 bool connectToAddressStr(const std::string& targetAddrStr);
-// ======================== BLE 回调 ========================
+
 class ClientCallbacks : public NimBLEClientCallbacks {
 public:
   void onDisconnect(NimBLEClient* pClient, int reason) override {
@@ -131,7 +137,7 @@ public:
   }
 };
 ClientCallbacks clientCB;
-// ======================== NVS ========================
+
 void saveDeviceToNVS(const std::string& addr) {
   prefs.begin("espauto", false);
   prefs.putString("dev_addr", addr.c_str());
@@ -154,7 +160,7 @@ void clearDeviceNVS() {
   prefs.end();
   hasSavedDevice = false;
 }
-// ======================== 控制指令 ========================
+
 void sendJoystick(int8_t x, int8_t y) {
   if (!connected || !pCtrlChar) return;
   uint8_t buf[5] = { 0xAA, 0xFF, 0x15, (uint8_t)x, (uint8_t)y };
@@ -192,7 +198,7 @@ void imuToJoystick(int8_t& x, int8_t& y) {
   y = (rawY > 100) ? 100 : ((rawY < -100) ? -100 : rawY);
   x = (rawX > 100) ? 100 : ((rawX < -100) ? -100 : rawX);
 }
-// ======================== 视频回调 ========================
+
 void videoNotifyCallback(NimBLERemoteCharacteristic* pRemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify) {
   portENTER_CRITICAL_ISR(&mux);
   if (length == 4 && pData[0] == 0xAB && pData[1] == 0xCD) {
@@ -219,7 +225,7 @@ void videoNotifyCallback(NimBLERemoteCharacteristic* pRemoteCharacteristic, uint
   }
   portEXIT_CRITICAL_ISR(&mux);
 }
-// ======================== OSD 绘制 ========================
+
 void drawOSDText(const char* text, int x, int y, uint16_t color, uint8_t size, uint8_t datum) {
   canvas.setTextSize(size);
   canvas.setTextDatum(datum);
@@ -255,7 +261,7 @@ void bootAnimation() {
   }
   delay(200);
 }
-// ======================== 扫描 UI ========================
+
 void showScanningUI() {
   uint32_t elapsed = millis() - scanStartTime;
   int progress = min((int)(elapsed * 100 / SCAN_DURATION_MS), 100);
@@ -280,7 +286,7 @@ void showScanningUI() {
   drawOSDText(pctBuf, w / 2, py + 86, UI_LIGHT_GRAY, 1);
   canvas.pushSprite(0, 0);
 }
-// ======================== 设备列表 UI ========================
+
 void renderDeviceList() {
   int w = canvas.width(), h = canvas.height();
   canvas.fillSprite(UI_BG_BLACK);
@@ -320,7 +326,7 @@ void renderDeviceList() {
     drawOSDText("v", w / 2, LIST_TOP + maxVisible * ITEM_HEIGHT + 1, UI_CYAN, 1, top_center);
   canvas.pushSprite(0, 0);
 }
-// ======================== 连接/状态 UI ========================
+
 void showConnectingNamedUI(const char* name) {
   static int dots = 0;
   char sub[32];
@@ -344,7 +350,7 @@ void showOfflineUI() {
   snprintf(buf, sizeof(buf), "AUTO POWER OFF IN %dS", (int)remain);
   drawHUDPopup("DEVICE OFFLINE", buf, UI_RED);
 }
-// ======================== 视频模式触摸处理 ========================
+
 bool handleVideoTouch() {
   uint8_t touchCount = M5.Touch.getCount();
   if (touchCount == 0) {
@@ -405,7 +411,7 @@ bool handleVideoTouch() {
 
   return false;
 }
-// ======================== 列表触摸处理 ========================
+
 void handleListTouch() {
   uint8_t touchCount = M5.Touch.getCount();
   if (touchCount == 0) {
@@ -464,7 +470,7 @@ void handleListTouch() {
     }
   }
 }
-// ======================== BLE 扫描 ========================
+
 bool scanForVehicles() {
   NimBLEScan* pScan = NimBLEDevice::getScan();
   pScan->setActiveScan(true);
@@ -522,7 +528,7 @@ bool scanForVehicles() {
   scrollOffset = 0;
   return deviceCount > 0;
 }
-// ======================== BLE 按地址连接 ========================
+
 bool connectToAddressStr(const std::string& targetAddrStr) {
   if (pClient != nullptr) {
     if (pClient->isConnected()) {
@@ -586,7 +592,7 @@ bool connectToAddressStr(const std::string& targetAddrStr) {
   offlineStartTime = 0;
   return true;
 }
-// ======================== 视频帧处理 ========================
+
 void processAndDrawFrame() {
   if (!frameReady) return;
   uint16_t len = 0;
@@ -602,7 +608,7 @@ void processAndDrawFrame() {
     }
   }
 }
-// ======================== OSD 叠加层 ========================
+
 void applyOSDOverlay() {
   int w = canvas.width(), h = canvas.height();
   int sigPercent = 0;
@@ -644,7 +650,7 @@ void applyOSDOverlay() {
            lastY, lastX, ledState ? "ON" : "OFF");
   drawOSDText(imuBuf, w / 2, h - 14, UI_LIGHT_GRAY, 1, bottom_center);
 }
-// ======================== setup ========================
+
 void setup() {
   auto cfg = M5.config();
   M5.begin(cfg);
@@ -682,7 +688,7 @@ void setup() {
   scanStartTime = millis();
   uiDirty = true;
 }
-// ======================== loop ========================
+
 void loop() {
   M5.update();
   switch (sysState) {
