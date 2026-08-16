@@ -12,12 +12,13 @@ An open-source RC car project featuring real-time video transmission via BLE (Bl
 | ![Web Mobile](Assets/web_mobile.png) | ![Arduino NESSO N1](Assets/nesso_n1.png) |
 
 ## Introduction
-ESPAUTO is an open-source RC car project built on Bluetooth Low Energy (BLE). By optimizing the BLE communication link, it achieves real-time video streaming and remote control. This project supports three control methods: Android, Arduino (Physical Remote), and Web, making it an ideal reference for learning BLE image transmission and ESP32 development.
+ESPAUTO is an open-source RC car project built on Bluetooth Low Energy (BLE). By optimizing the BLE communication link, it achieves real-time video streaming and remote control. This project supports four control methods: Android, Windows, Arduino (Physical Remote), and Web, making it an ideal reference for learning BLE image transmission and ESP32 development.
 
 ## Key Features
 - **Communication Protocol:** BLE data link optimized for ESP32-S3/C6 architectures.
 - **Multi-Terminal Control:**
   - **Android:** Native development using Kotlin, supporting Android 12+.
+  - **Windows:** Native development using WinUI 3 + .NET 8, supporting Windows 10 19041+, with Mica material UI.
   - **Arduino:** Dedicated physical remote firmware based on the Arduino Nesso N1.
   - **Web:** Responsive control interface, accessible via standard web browsers.
 - **Internationalization:** Built-in support for both Chinese and English.
@@ -25,6 +26,7 @@ ESPAUTO is an open-source RC car project built on Bluetooth Low Energy (BLE). By
 
 ## Project Structure
 - `/Android/ESPAUTO`: Android client source code.
+- `/Windows/ESPAUTO`: Windows client source code.
 - `/Arduino`: ESP32 firmware source code.
   - `/Car`: Firmware for the car (ESP32-S3 + OV5640).
   - `/Remote`: Firmware for the remote controller (Arduino Nesso N1 / ESP32-C6).
@@ -42,6 +44,7 @@ ESPAUTO is an open-source RC car project built on Bluetooth Low Energy (BLE). By
 
 **Running Clients:**
 - **Android:** Open the `/Android/ESPAUTO` project in Android Studio to compile and install.
+- **Windows:** Use Visual Studio or `dotnet publish` to build the `/Windows/ESPAUTO` project and generate an MSI installer.
 - **Web:**
   - **Online Access:** Click [Access Web Client](https://honoz.github.io/ESPAUTO/Web/index.html) to start using it directly.
   - **Local Run:** You can also open `/Web/index.html` directly in your browser.
@@ -51,6 +54,3 @@ ESPAUTO is an open-source RC car project built on Bluetooth Low Energy (BLE). By
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## Feedback
-Contributions, issues, and pull requests are welcome!
