@@ -68,7 +68,7 @@ public sealed partial class MainWindow : Window
             Log($"SetIcon failed: {ex.Message}");
         }
 
-        this.AppWindow.Resize(new Windows.Graphics.SizeInt32(1000, 900));
+        this.AppWindow.Resize(new Windows.Graphics.SizeInt32(1000, 990));
 
         this.SystemBackdrop = new MicaBackdrop();
         Log("Constructor: DesktopAcrylicBackdrop set");
@@ -105,7 +105,6 @@ public sealed partial class MainWindow : Window
             var w = VideoBorder.ActualWidth;
             if (w > 0) VideoBorder.Height = w * 3.0 / 4.0;
         };
-        VideoBorder.Height = 400;
         Log("Constructor: DeviceList setup");
 
         this.Activated += (s, e) => {
