@@ -10,6 +10,8 @@ An open-source RC car project featuring real-time video transmission via BLE (Bl
 | ![Android](Assets/android_screenshot.png) | ![Web PC](Assets/web_pc.png) |
 | **Web Mobile** | **Arduino NESSO N1** |
 | ![Web Mobile](Assets/web_mobile.png) | ![Arduino NESSO N1](Assets/nesso_n1.png) |
+| **Windows** |
+| ![Windows](Assets/windows_screenshot.png) |
 
 ## Introduction
 ESPAUTO is an open-source RC car project built on Bluetooth Low Energy (BLE). By optimizing the BLE communication link, it achieves real-time video streaming and remote control. This project supports four control methods: Android, Windows, Arduino (Physical Remote), and Web, making it an ideal reference for learning BLE image transmission and ESP32 development.
