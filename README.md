@@ -22,7 +22,7 @@ ESPAUTO 是一个基于低功耗蓝牙（BLE）的开源遥控小车项目。通
   - **Windows:** 支持 Windows 10 19041+，采用 C# 开发，UI 基于 WinUI 3。
   - **Mac:** 支持 macOS 26+，采用 Swift 开发，UI 基于 SwiftUI。
   - **Arduino:** 支持 Arduino Nesso N1，采用 C++ 开发，提供物理遥控器固件。
-  - **Web:** 支持浏览器控制，采用 HTML + JavaScript 开发，提供基础 Web 遥控界面。
+  - **Web:** 支持浏览器访问，采用 JavaScript 开发，UI 基于 HTML + CSS。
 - **配置支持：** 内置中英文双语切换。
 - **开源分享：** 固件与控制端源码完全公开，方便参考学习。
 
