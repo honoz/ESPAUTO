@@ -1,0 +1,12 @@
+{
+  "/Users/tizan/Desktop/Mac/ESPAUTO/App/ESPAUTOApp.swift" : {
+    "abi-baseline-json" : "/Users/tizan/Desktop/Mac/ESPAUTO/build/DerivedData/Build/Intermediates.noindex/ESPAUTO.build/Release/ESPAUTO.build/Objects-normal/arm64/ESPAUTO.abi.json",
+    "const-values" : "/Users/tizan/Desktop/Mac/ESPAUTO/build/DerivedData/Build/Intermediates.noindex/ESPAUTO.build/Release/ESPAUTO.build/Objects-normal/arm64/ESPAUTO-primary.swiftconstvalues",
+    "dependencies" : "/Users/tizan/Desktop/Mac/ESPAUTO/build/DerivedData/Build/Intermediates.noindex/ESPAUTO.build/Release/ESPAUTO.build/Objects-normal/arm64/ESPAUTO-primary.d",
+    "diagnostics" : "/Users/tizan/Desktop/Mac/ESPAUTO/build/DerivedData/Build/Intermediates.noindex/ESPAUTO.build/Release/ESPAUTO.build/Objects-normal/arm64/ESPAUTO-primary.dia",
+    "objc-header" : "/Users/tizan/Desktop/Mac/ESPAUTO/build/DerivedData/Build/Intermediates.noindex/ESPAUTO.build/Release/ESPAUTO.build/Objects-normal/arm64/ESPAUTO-Swift.h",
+    "swiftdoc" : "/Users/tizan/Desktop/Mac/ESPAUTO/build/DerivedData/Build/Intermediates.noindex/ESPAUTO.build/Release/ESPAUTO.build/Objects-normal/arm64/ESPAUTO.swiftdoc",
+    "swiftmodule" : "/Users/tizan/Desktop/Mac/ESPAUTO/build/DerivedData/Build/Intermediates.noindex/ESPAUTO.build/Release/ESPAUTO.build/Objects-normal/arm64/ESPAUTO.swiftmodule",
+    "swiftsourceinfo" : "/Users/tizan/Desktop/Mac/ESPAUTO/build/DerivedData/Build/Intermediates.noindex/ESPAUTO.build/Release/ESPAUTO.build/Objects-normal/arm64/ESPAUTO.swiftsourceinfo"
+  }
+}

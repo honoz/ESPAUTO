@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>logFormatVersion</key>
+	<integer>13</integer>
+	<key>logs</key>
+	<dict>
+		<key>D2AF635E-93F7-4F7C-9BE2-15DFC5CC81AC</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>D2AF635E-93F7-4F7C-9BE2-15DFC5CC81AC.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>W</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>6</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>ESPAUTO project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>ESPAUTO</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Building project ESPAUTO with scheme ESPAUTO and configuration Release</string>
+			<key>timeStartedRecording</key>
+			<real>809179584.45875001</real>
+			<key>timeStoppedRecording</key>
+			<real>809179597.89635098</real>
+			<key>title</key>
+			<string>Building project ESPAUTO with scheme ESPAUTO and configuration Release</string>
+			<key>uniqueIdentifier</key>
+			<string>D2AF635E-93F7-4F7C-9BE2-15DFC5CC81AC</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

@@ -1,0 +1,64 @@
+{
+  "buildCommand" : {
+    "command" : "build",
+    "skipDependencies" : false,
+    "style" : "buildOnly"
+  },
+  "configuredTargets" : [
+    {
+      "guid" : "092939a0a1c9d44a2f47b6c355fedfc928a623cd30fbaa119d702b75351f1475"
+    }
+  ],
+  "containerPath" : "/Users/tizan/Desktop/Mac/ESPAUTO/ESPAUTO.xcodeproj",
+  "continueBuildingAfterErrors" : false,
+  "dependencyScope" : "workspace",
+  "enableIndexBuildArena" : false,
+  "hideShellScriptEnvironment" : false,
+  "parameters" : {
+    "action" : "build",
+    "activeArchitecture" : "arm64",
+    "activeRunDestination" : {
+      "disableOnlyActiveArch" : false,
+      "hostTargetedPlatform" : null,
+      "platform" : "macosx",
+      "sdk" : "macosx27.0",
+      "sdkVariant" : "macos",
+      "supportedArchitectures" : [
+        "arm64e",
+        "arm64",
+        "x86_64"
+      ],
+      "targetArchitecture" : "arm64"
+    },
+    "arenaInfo" : {
+      "buildIntermediatesPath" : "/Users/tizan/Desktop/Mac/ESPAUTO/build/DerivedData/Build/Intermediates.noindex",
+      "buildProductsPath" : "/Users/tizan/Desktop/Mac/ESPAUTO/build/DerivedData/Build/Products",
+      "derivedDataPath" : "/Users/tizan/Desktop/Mac/ESPAUTO/build/DerivedData",
+      "indexDataStoreFolderPath" : "/Users/tizan/Desktop/Mac/ESPAUTO/build/DerivedData/Index.noindex/DataStore",
+      "indexEnableDataStore" : true,
+      "indexPCHPath" : "/Users/tizan/Desktop/Mac/ESPAUTO/build/DerivedData/Index.noindex/PrecompiledHeaders",
+      "pchPath" : "/Users/tizan/Desktop/Mac/ESPAUTO/build/DerivedData/Build/Intermediates.noindex/PrecompiledHeaders"
+    },
+    "configurationName" : "Release",
+    "overrides" : {
+      "commandLine" : {
+        "table" : {
+
+        }
+      },
+      "synthesized" : {
+        "table" : {
+          "ACTION" : "build",
+          "ENABLE_PREVIEWS" : "NO",
+          "ENABLE_XOJIT_PREVIEWS" : "YES"
+        }
+      }
+    }
+  },
+  "schemeCommand" : "launch",
+  "showNonLoggedProgress" : true,
+  "useDryRun" : false,
+  "useImplicitDependencies" : true,
+  "useLegacyBuildLocations" : false,
+  "useParallelTargets" : true
+}
