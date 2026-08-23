@@ -27,7 +27,7 @@ ESPAUTO is an open-source RC car project based on Bluetooth Low Energy (BLE). Th
   - **Arduino:** Supports Arduino Nesso N1, developed in C++, providing physical remote controller firmware.
   - **Web:** Supports browser access, developed in JavaScript with HTML + CSS-based UI.
 - **Localization:** Built-in bilingual support (Chinese and English).
-- **Open Source:** Firmware and client source code are fully available for reference and learning.
+- **Open Source:** The firmware and client source code are fully disclosed for reference and learning.
 
 ## Project Structure
 
