@@ -2,7 +2,7 @@
 
 # ESPAUTO
 
-An open-source RC car project featuring real-time video transmission via BLE (Bluetooth Low Energy) based on ESP32.
+ESP32-Based BLE Real-Time Video Streaming RC Car Project
 
 ## Preview
 | Android | Web PC |
@@ -10,49 +10,66 @@ An open-source RC car project featuring real-time video transmission via BLE (Bl
 | ![Android](Assets/android_screenshot.png) | ![Web PC](Assets/web_pc.png) |
 | **Web Mobile** | **Arduino NESSO N1** |
 | ![Web Mobile](Assets/web_mobile.png) | ![Arduino NESSO N1](Assets/nesso_n1.png) |
-| **Windows** |
-| ![Windows](Assets/windows_screenshot.png) |
+| **Windows** | **Mac** | 
+| ![Windows](Assets/windows_screenshot.png) | ![Mac](Assets/mac_screenshot.png) |
 
 ## Introduction
-ESPAUTO is an open-source RC car project built on Bluetooth Low Energy (BLE). By optimizing the BLE communication link, it achieves real-time video streaming and remote control. This project supports four control methods: Android, Windows, Arduino (Physical Remote), and Web, making it an ideal reference for learning BLE image transmission and ESP32 development.
+
+ESPAUTO is an open-source RC car project based on Bluetooth Low Energy (BLE). Through optimizations on the BLE communication link, it achieves real-time video streaming and command control. The project includes five control interfaces: Android, Windows, Mac, Arduino, and Web, serving as a reference for learning BLE image transmission and ESP32 development.
 
 ## Key Features
-- **Communication Protocol:** BLE data link optimized for ESP32-S3/C6 architectures.
-- **Multi-Terminal Control:**
-  - **Android:** Native development using Kotlin, supporting Android 12+.
-  - **Windows:** Native development using WinUI 3 + .NET 8, supporting Windows 10 19041+.
-  - **Arduino:** Dedicated physical remote firmware based on the Arduino Nesso N1.
-  - **Web:** Responsive control interface, accessible via standard web browsers.
-- **Internationalization:** Built-in support for both Chinese and English.
-- **Open Source:** Fully transparent firmware and client source code for study and reference.
+
+- **Communication Protocol:** BLE data link based on ESP32-S3/C6.
+- **Multi-Platform Control:**
+  - **Android:** Supports Android 12+, developed in Kotlin with XML-based UI.
+  - **Windows:** Supports Windows 10 19041+, developed in C# with WinUI 3-based UI.
+  - **Mac:** Supports macOS 26+, developed in Swift with SwiftUI-based UI.
+  - **Arduino:** Supports Arduino Nesso N1, developed in C++, providing physical remote controller firmware.
+  - **Web:** Supports browser control, developed in HTML + JavaScript, providing a basic web remote control interface.
+- **Localization:** Built-in bilingual support (Chinese and English).
+- **Open Source:** Firmware and client source code are fully公开 for reference and learning.
 
 ## Project Structure
-- `/Android/ESPAUTO`: Android client source code.
-- `/Windows/ESPAUTO`: Windows client source code.
-- `/Arduino`: ESP32 firmware source code.
-  - `/Car`: Firmware for the car (ESP32-S3 + OV5640).
-  - `/Remote`: Firmware for the remote controller (Arduino Nesso N1 / ESP32-C6).
-- `/Web`: Web control interface source code.
 
-## Getting Started
+- `/Android/ESPAUTO`: Android client project directory.
+- `/Windows/ESPAUTO`: Windows client project directory.
+- `/Mac/ESPAUTO`: Mac client project directory.
+- `/Arduino`: ESP32 low-level firmware source code.
+  - `/Car`: Car-side firmware (ESP32-S3 + OV5640).
+  - `/Remote`: Remote controller firmware (Arduino Nesso N1 / ESP32-C6).
+- `/Web`: Web client source code.
+
+## Quick Start
+
 ### 1. Hardware Requirements
-- **Car:** ESP32-S3 + OV5640 camera module.
-- **Remote:** Arduino Nesso N1 (powered by ESP32-C6).
+
+- **Car Side:** ESP32-S3 + OV5640 camera module.
+- **Controller Side:** Arduino Nesso N1 (equipped with ESP32-C6).
 
 ### 2. Deployment
-**Firmware Flashing (Arduino IDE):**
-- **Car (ESP32-S3):** Open the `/Arduino/Car` project in Arduino IDE, configure the board and port, then compile and upload.
-- **Remote (Arduino Nesso N1):** Open the `/Arduino/Remote` project in Arduino IDE, configure the board and port, then compile and upload.
 
-**Running Clients:**
-- **Android:** Open the `/Android/ESPAUTO` project in Android Studio to compile and install.
-- **Windows:** Use Visual Studio or `dotnet publish` to build the `/Windows/ESPAUTO` project and generate an MSI installer.
+**Firmware Flashing (Arduino IDE):**
+
+- **Car (ESP32-S3):** Open the `/Arduino/Car` project in Arduino IDE, configure the board type and port, then compile and upload.
+- **Remote (Arduino Nesso N1):** Open the `/Arduino/Remote` project in Arduino IDE, configure the board type and port, then compile and upload.
+
+**Client Setup:**
+
+- **Android:** Open the `/Android/ESPAUTO` project in Android Studio to build the APK.
+- **Windows:** Open the `/Windows/ESPAUTO` project in Visual Studio to build the MSI installer.
+- **Mac:** Open the `/Mac/ESPAUTO` project in Xcode to build the app.
 - **Web:**
-  - **Online Access:** Click [Access Web Client](https://honoz.github.io/ESPAUTO/Web/index.html) to start using it directly.
-  - **Local Run:** You can also open `/Web/index.html` directly in your browser.
+  - **Online:** Visit the [Web Online Client](https://honoz.github.io/ESPAUTO/Web/index.html) to connect and use directly.
+  - **Local:** Open `/Web/index.html` locally to use.
 
 **Connection:**
-- Simply pair the devices via Bluetooth to start controlling.
+
+- Establish a Bluetooth pairing connection between devices to use.
 
 ## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+This project is open-sourced under the [MIT License](LICENSE).
+
+## Feedback
+
+Feel free to submit Issues or PRs for project discussion and collaboration.
