@@ -15,26 +15,19 @@ using ESPAUTO.Models;
 
 namespace ESPAUTO.Services;
 
-/// <summary>
-/// ESPAUTO BLE 通信服务
-/// 负责蓝牙设备发现、连接、命令发送、视频流接收和状态轮询
-/// </summary>
 public class EspAutoBleService : IDisposable
 {
-    // ─── BLE UUID ───────────────────────────────────────────
     public static readonly Guid ServiceUuid = Guid.Parse("0000ffe0-0000-1000-8000-00805f9b34fb");
     public static readonly Guid ControlCharUuid = Guid.Parse("0000ffe2-0000-1000-8000-00805f9b34fb");
     public static readonly Guid VideoCharUuid = Guid.Parse("0000ffe1-0000-1000-8000-00805f9b34fb");
     public static readonly Guid StatusCharUuid = Guid.Parse("0000ffe3-0000-1000-8000-00805f9b34fb");
 
-    // ─── 命令码 ─────────────────────────────────────────────
     public const byte CmdLedBrightness = 0x00;
     public const byte CmdBeep = 0x12;
     public const byte CmdServoUp = 0x13;
     public const byte CmdServoDown = 0x14;
     public const byte CmdCarMove = 0x15;
 
-    // ─── 内部状态 ───────────────────────────────────────────
     private BluetoothLEDevice? _bleDevice;
     private GattDeviceServicesResult? _serviceResult;
     private GattCharacteristic? _controlChar;
@@ -46,22 +39,18 @@ public class EspAutoBleService : IDisposable
     private Timer? _cmdTimer;
     private Timer? _statusPollTimer;
 
-    // 视频帧组装（直接缓冲区，避免 List<byte[]> 碎片分配）
     private readonly object _videoFrameLock = new();
     private byte[] _videoFrameBuffer = new byte[65536];
     private int _videoBufferReceivedLen;
     private int _expectFrameTotalLen;
     private int _videoOverflowLen;
 
-    // FPS 计算
     private int _frameCountFps;
     private long _lastFpsRefreshTime;
 
-    // ─── 公共属性 ───────────────────────────────────────────
     public bool IsConnected => _bleDevice != null && _controlChar != null;
     public bool IsScanning { get; private set; }
 
-    // ─── 事件 ──────────────────────────────────────────────
     public event Action<ConnectionStatus>? ConnectionStatusChanged;
     public event Action<byte[]>? VideoFrameReceived;
     public event Action<DeviceStatusData>? StatusUpdated;
@@ -69,17 +58,12 @@ public class EspAutoBleService : IDisposable
     public event Action<List<BleDeviceInfo>>? DevicesDiscovered;
     public event Action<bool>? ScanStateChanged;
 
-    /// <summary>
-    /// 构造函数，启动命令队列定时器
-    /// </summary>
     public EspAutoBleService()
     {
         _cmdTimer = new Timer(_ => ProcessNextCmdAsync(), null,
             TimeSpan.FromMilliseconds(15), TimeSpan.FromMilliseconds(15));
         _lastFpsRefreshTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
     }
-
-    // ─── 设备扫描 ───────────────────────────────────────────
 
     private Windows.Devices.Bluetooth.Advertisement.BluetoothLEAdvertisementWatcher? _scanWatcher;
     private readonly Dictionary<ulong, BleDeviceInfo> _discoveredDevices = new();
@@ -219,7 +203,7 @@ public class EspAutoBleService : IDisposable
                             if (val.Status == GattCommunicationStatus.Success)
                                 HandleStatusData(ToByteArray(val.Value), false);
                         }
-                        catch { }
+                        catch {}
                     }
                 }, null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2));
             }
@@ -235,35 +219,25 @@ public class EspAutoBleService : IDisposable
         }
     }
 
-    // ─── 连接 / 断开 ────────────────────────────────────────
-
-    /// <summary>
-    /// 搜索并连接 BLE 设备 (厂商数据 0xE5E5) - 保留用于兼容
-    /// </summary>
     public async Task ConnectAsync()
     {
         try
         {
-            // 清理旧连接
             CleanupBle();
 
             ConnectionStatusChanged?.Invoke(ConnectionStatus.Searching);
 
-            // 使用 BLE Advertisement Watcher 扫描含厂商数据 0xE5E5 的设备
             BluetoothLEDevice? targetDevice = null;
             var watcher = new Windows.Devices.Bluetooth.Advertisement.BluetoothLEAdvertisementWatcher();
 
-            // 设置厂商数据过滤器
             var manufacturerData = new Windows.Devices.Bluetooth.Advertisement.BluetoothLEManufacturerData();
             manufacturerData.CompanyId = 0xE5E5;
-            // 空数据段，仅匹配 CompanyId
             using (var writer = new DataWriter())
             {
                 manufacturerData.Data = writer.DetachBuffer();
             }
             watcher.AdvertisementFilter.Advertisement.ManufacturerData.Add(manufacturerData);
 
-            // 扫描 8 秒
             var tcs = new TaskCompletionSource<bool>();
             ulong foundAddress = 0;
             watcher.Received += (s, args) =>
@@ -283,7 +257,6 @@ public class EspAutoBleService : IDisposable
 
             if (targetDevice == null)
             {
-                // 回退：枚举已配对的 BLE 设备
                 var pairedDevices = await Windows.Devices.Enumeration.DeviceInformation.FindAllAsync(
                     BluetoothLEDevice.GetDeviceSelectorFromPairingState(true));
 
@@ -298,7 +271,7 @@ public class EspAutoBleService : IDisposable
                             break;
                         }
                     }
-                    catch { /* 跳过无法打开的设备 */ }
+                    catch {}
                 }
             }
 
@@ -319,7 +292,6 @@ public class EspAutoBleService : IDisposable
             _bleDevice.ConnectionStatusChanged += OnBleConnectionStatusChanged;
             ConnectionStatusChanged?.Invoke(ConnectionStatus.Linking);
 
-            // 连接 GATT 服务
             var gattResult = await _bleDevice.GetGattServicesAsync(BluetoothCacheMode.Uncached);
             if (gattResult.Status != GattCommunicationStatus.Success)
                 throw new Exception("GATT services discovery failed");
@@ -329,7 +301,6 @@ public class EspAutoBleService : IDisposable
             if (service == null)
                 throw new Exception("ESPAUTO BLE service not found");
 
-            // 获取控制特征
             var controlResult = await service.GetCharacteristicsAsync(BluetoothCacheMode.Uncached);
             if (controlResult.Status == GattCommunicationStatus.Success)
             {
@@ -338,7 +309,6 @@ public class EspAutoBleService : IDisposable
                 _statusChar = controlResult.Characteristics.FirstOrDefault(c => c.Uuid == StatusCharUuid);
             }
 
-            // 订阅视频通知
             if (_videoChar != null)
             {
                 _videoChar.ValueChanged += OnVideoDataReceived;
@@ -346,7 +316,6 @@ public class EspAutoBleService : IDisposable
                     GattClientCharacteristicConfigurationDescriptorValue.Notify);
             }
 
-            // 读取初始状态并启动轮询
             if (_statusChar != null)
             {
                 var initValue = await _statusChar.ReadValueAsync();
@@ -365,7 +334,7 @@ public class EspAutoBleService : IDisposable
                             if (val.Status == GattCommunicationStatus.Success)
                                 HandleStatusData(ToByteArray(val.Value), false);
                         }
-                        catch { /* 轮询失败忽略 */ }
+                        catch {}
                     }
                 }, null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2));
             }
@@ -385,9 +354,6 @@ public class EspAutoBleService : IDisposable
         }
     }
 
-    /// <summary>
-    /// 断开 BLE 连接
-    /// </summary>
     public void Disconnect()
     {
         if (_bleDevice != null && IsConnected)
@@ -412,7 +378,6 @@ public class EspAutoBleService : IDisposable
     {
         _statusPollTimer?.Dispose();
         _statusPollTimer = null;
-        // 注意：_cmdTimer 是持久化定时器，不在这里销毁
 
         if (_videoChar != null)
         {
@@ -439,32 +404,24 @@ public class EspAutoBleService : IDisposable
         _videoOverflowLen = 0;
     }
 
-    // ─── 命令发送 ───────────────────────────────────────────
-
-    /// <summary>发送车辆移动命令</summary>
     public void SendCarMoveCmd(sbyte speed, sbyte steer)
     {
         var cmd = new byte[] { 0xAA, 0xFF, CmdCarMove, (byte)speed, (byte)steer };
         AddCmdToQueue(cmd);
     }
 
-    /// <summary>发送 LED 亮度命令</summary>
     public void SendLedBrightnessCmd(int brightnessPercent)
     {
         byte rawBright = (byte)Math.Round((brightnessPercent / 100.0) * 255);
         AddCmdToQueue(new byte[] { 0xAA, 0xFF, CmdLedBrightness, rawBright });
     }
 
-    /// <summary>发送鸣笛命令</summary>
     public void SendBeepCmd() => AddCmdToQueue(new byte[] { 0xAA, 0xFF, CmdBeep });
 
-    /// <summary>发送云台抬起命令</summary>
     public void SendServoUpCmd() => AddCmdToQueue(new byte[] { 0xAA, 0xFF, CmdServoUp });
 
-    /// <summary>发送云台降下命令</summary>
     public void SendServoDownCmd() => AddCmdToQueue(new byte[] { 0xAA, 0xFF, CmdServoDown });
 
-    /// <summary>强制停车</summary>
     public async void ForceStopCar()
     {
         var cmd = new byte[] { 0xAA, 0xFF, CmdCarMove, 0, 0 };
@@ -476,7 +433,7 @@ public class EspAutoBleService : IDisposable
                 writer.WriteBytes(cmd);
                 await _controlChar.WriteValueAsync(writer.DetachBuffer());
             }
-            catch { /* 忽略断连时的写入错误 */ }
+            catch {}
         }
     }
 
@@ -486,7 +443,6 @@ public class EspAutoBleService : IDisposable
 
         lock (_cmdQueue)
         {
-            // 移动命令只保留最新的一条
             if (_cmdQueue.Count > 2 && cmdBytes.Length >= 3 && cmdBytes[2] == CmdCarMove)
             {
                 _cmdQueue.RemoveAll(c => c.Length >= 3 && c[2] == CmdCarMove);
@@ -514,14 +470,12 @@ public class EspAutoBleService : IDisposable
             writer.WriteBytes(cmd);
             await _controlChar.WriteValueAsync(writer.DetachBuffer());
         }
-        catch { /* 写入失败忽略 */ }
+        catch {}
         finally
         {
             _isSendingCmd = false;
         }
     }
-
-    // ─── 视频数据处理 ───────────────────────────────────────
 
     private void OnVideoDataReceived(GattCharacteristic sender, GattValueChangedEventArgs args)
     {
@@ -530,17 +484,13 @@ public class EspAutoBleService : IDisposable
 
         lock (_videoFrameLock)
         {
-            // 帧头: 0xAB 0xCD + 2字节JPEG总长度
             if (data.Length >= 4 && data[0] == 0xAB && data[1] == 0xCD)
             {
-                // 如果上一帧未组装完就收到新帧头，丢弃不完整的旧帧
-                // （这是导致花屏的主要原因：帧被截断后仍被显示）
 
                 _expectFrameTotalLen = (data[2] << 8) | data[3];
                 _videoBufferReceivedLen = 0;
                 _videoOverflowLen = 0;
 
-                // 处理帧头包中可能携带的溢出数据（BLE 合并通知时）
                 if (data.Length > 4)
                 {
                     int overflowLen = data.Length - 4;
@@ -553,7 +503,7 @@ public class EspAutoBleService : IDisposable
                     {
                         _videoOverflowLen = overflowLen - copyLen;
                         EmitVideoFrame();
-                        // 处理溢出到下一帧的数据
+
                         if (_videoOverflowLen > 0 && data.Length >= 4 + copyLen + 4)
                         {
                             int ovStart = 4 + copyLen;
@@ -578,7 +528,6 @@ public class EspAutoBleService : IDisposable
                 return;
             }
 
-            // 非帧头数据：追加到帧缓冲区
             if (_expectFrameTotalLen <= 0 || _videoBufferReceivedLen >= _expectFrameTotalLen) return;
 
             int spaceLeft = _expectFrameTotalLen - _videoBufferReceivedLen;
@@ -589,7 +538,6 @@ public class EspAutoBleService : IDisposable
                 _videoBufferReceivedLen += toCopy;
             }
 
-            // 记录超出声明长度的溢出数据
             if (_videoBufferReceivedLen >= _expectFrameTotalLen)
             {
                 _videoOverflowLen = data.Length - toCopy;
@@ -602,18 +550,15 @@ public class EspAutoBleService : IDisposable
     {
         if (_expectFrameTotalLen < 2) { ResetFrameState(); return; }
 
-        // 验证 JPEG SOI 标记 (0xFF 0xD8)
         if (_videoFrameBuffer[0] != 0xFF || _videoFrameBuffer[1] != 0xD8)
         {
             ResetFrameState();
             return;
         }
 
-        // 拷贝完整帧数据用于发送（必须在重置状态前拷贝）
         var fullFrame = new byte[_expectFrameTotalLen];
         System.Buffer.BlockCopy(_videoFrameBuffer, 0, fullFrame, 0, _expectFrameTotalLen);
 
-        // FPS 计算
         _frameCountFps++;
         var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         if (now - _lastFpsRefreshTime >= 1000)
@@ -623,10 +568,8 @@ public class EspAutoBleService : IDisposable
             _lastFpsRefreshTime = now;
         }
 
-        // 通知 UI 层
         VideoFrameReceived?.Invoke(fullFrame);
 
-        // 保存溢出长度，重置帧状态
         int overflow = _videoOverflowLen;
         _expectFrameTotalLen = 0;
         _videoBufferReceivedLen = 0;
@@ -639,8 +582,6 @@ public class EspAutoBleService : IDisposable
         _videoBufferReceivedLen = 0;
         _videoOverflowLen = 0;
     }
-
-    // ─── 状态数据处理 ───────────────────────────────────────
 
     private void HandleStatusData(byte[] data, bool isInitial)
     {
@@ -659,8 +600,6 @@ public class EspAutoBleService : IDisposable
 
         StatusUpdated?.Invoke(status);
     }
-
-    // ─── 工具方法 ───────────────────────────────────────────
 
     private static byte[] ToByteArray(IBuffer buffer)
     {

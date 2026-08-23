@@ -9,7 +9,6 @@
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- Brand Colors -->
             <Color x:Key="BrandPrimaryColor">#0A59F7</Color>
             <Color x:Key="StatusSuccessColor">#00B578</Color>
             <Color x:Key="StatusDangerColor">#FF3B30</Color>
@@ -20,7 +19,6 @@
             <SolidColorBrush x:Key="StatusDangerBrush" Color="{StaticResource StatusDangerColor}" />
             <SolidColorBrush x:Key="StatusWarningBrush" Color="{StaticResource StatusWarningColor}" />
 
-            <!-- Card Style -->
             <Thickness x:Key="CardPadding">24</Thickness>
             <CornerRadius x:Key="CardCornerRadius">24</CornerRadius>
             <CornerRadius x:Key="SubCornerRadius">16</CornerRadius>

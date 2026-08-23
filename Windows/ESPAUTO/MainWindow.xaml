@@ -10,19 +10,16 @@
           KeyDown="RootGrid_KeyDown" KeyUp="RootGrid_KeyUp"
           PreviewKeyDown="RootGrid_PreviewKeyDown">
 
-        <!-- 标题栏区域（ExtendsContentIntoTitleBar 后需手动显示标题） -->
         <TextBlock Text="ESPAUTO" FontSize="12" FontWeight="SemiBold"
                    Margin="10,8,0,0" VerticalAlignment="Top"
                    IsHitTestVisible="False"/>
 
-        <!-- 主体：左右分栏 -->
         <Grid Padding="20" Margin="0,32,0,0" ColumnSpacing="20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="600"/>
             </Grid.ColumnDefinitions>
 
-            <!-- 左侧：设备扫描面板 -->
             <Border Grid.Column="0"
                     CornerRadius="12" Padding="20"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
@@ -37,10 +34,8 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <!-- 标题 -->
                     <TextBlock Grid.Row="0" Text="设备扫描" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,12"/>
 
-                    <!-- 扫描按钮 -->
                     <Button Grid.Row="1" x:Name="BtnScan" Click="BtnScan_Click"
                             HorizontalAlignment="Stretch" Height="40"
                             CornerRadius="8" Style="{ThemeResource AccentButtonStyle}"
@@ -51,12 +46,10 @@
                         </StackPanel>
                     </Button>
 
-                    <!-- 状态文字 -->
                     <TextBlock Grid.Row="2" x:Name="ScanStatusText" Text="点击扫描按钮搜索附近的低功耗蓝牙设备"
                                FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                Margin="0,0,0,12" TextWrapping="Wrap"/>
 
-                    <!-- 设备列表 -->
                     <ListView Grid.Row="3" x:Name="DeviceList" SelectionMode="Single"
                               Background="Transparent" BorderThickness="0"
                               ScrollViewer.VerticalScrollBarVisibility="Auto">
@@ -89,13 +82,11 @@
                         </ListView.ItemTemplate>
                     </ListView>
 
-                    <!-- 空提示 -->
                     <TextBlock Grid.Row="3" x:Name="NoDeviceText" Text="暂无设备"
                                FontSize="13" Foreground="{ThemeResource TextFillColorTertiaryBrush}"
                                HorizontalAlignment="Center" Padding="0,40"
                                Visibility="Visible"/>
 
-                    <!-- 连接/断开按钮 -->
                     <Button Grid.Row="4" x:Name="BtnConnectDevice" Click="BtnConnectDevice_Click"
                             HorizontalAlignment="Stretch" Height="44"
                             CornerRadius="8" Style="{ThemeResource AccentButtonStyle}"
@@ -108,7 +99,6 @@
                 </Grid>
             </Border>
 
-            <!-- 右侧：视频 + 控制 + 操控说明 -->
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -118,7 +108,6 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- 视频区域 -->
                 <Border x:Name="VideoBorder" Grid.Row="0" CornerRadius="12" Background="Black"
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                         BorderThickness="1" HorizontalAlignment="Stretch">
@@ -146,7 +135,6 @@
                     </Grid>
                 </Border>
 
-                <!-- 状态卡片 -->
                 <Grid Grid.Row="1" ColumnSpacing="10" RowSpacing="10" Margin="0,16,0,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
@@ -196,7 +184,6 @@
                     </Border>
                 </Grid>
 
-                <!-- 操作按钮 -->
                 <Grid Grid.Row="2" ColumnSpacing="10" Margin="0,10,0,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="1.2*"/>
@@ -221,7 +208,6 @@
                     </Button>
                 </Grid>
 
-                <!-- 灯光控制 -->
                 <Border Grid.Row="3" CornerRadius="12" Padding="16" Margin="0,10,0,0"
                         Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
@@ -237,7 +223,6 @@
                     </StackPanel>
                 </Border>
 
-                <!-- 操控说明（填充剩余空间） -->
                 <Border Grid.Row="4" CornerRadius="12" Padding="16" Margin="0,10,0,0"
                         Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                         BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
