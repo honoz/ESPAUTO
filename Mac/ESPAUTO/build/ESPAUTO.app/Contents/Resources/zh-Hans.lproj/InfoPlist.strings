@@ -1,0 +1,3 @@
+/* Localized versions of Info.plist keys */
+CFBundleDisplayName = "ESPAUTO";
+NSBluetoothAlwaysUsageDescription = "ESPAUTO 需要使用蓝牙来连接和控制设备";
