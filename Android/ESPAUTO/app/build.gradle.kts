@@ -10,8 +10,7 @@ android {
     defaultConfig {
         applicationId = "com.android.espauto"
         minSdk = 31
-        //noinspection OldTargetApi
-        targetSdk = 35
+        targetSdk = 37
         versionCode = 2
         versionName = "1.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
